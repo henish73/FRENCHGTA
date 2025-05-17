@@ -10,6 +10,7 @@ import pytz  # Ensure pytz is installed for timezone handling
 from slugify import slugify  # Ensure this is the correct import
 import shutil
 from flask_login import login_required, LoginManager, UserMixin, login_user
+import MySQLdb
 
 app = Flask(__name__)
 
@@ -24,6 +25,14 @@ db_config = {
     'host': 'localhost',
     'database': 'FrenchGta'
 }
+
+db = MySQLdb.connect(
+    host=os.getenv("DB_HOST"),
+    port=int(os.getenv("DB_PORT")),
+    user=os.getenv("DB_USER"),
+    passwd=os.getenv("DB_PASS"),
+    db=os.getenv("DB_NAME")
+)
 
 # File upload configuration
 UPLOAD_FOLDER = 'w:/FRENCH.GTA/code/static/uploads'
