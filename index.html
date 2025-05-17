@@ -195,21 +195,7 @@
 
         <section class="testimonials animate-on-scroll">
             <h2>What Our Students Say</h2>
-            <div class="testimonial-slider">
-                <div class="testimonial">
-                    <img src="/static/img/Gemini_Generated_Image_pg81h9pg81h9pg81.png" alt="Student Success" class="testimonial-img">
-                    <p>"FRENCH.GTA's online classes are fantastic! The instructors are so supportive, and I've learned so much."</p>
-                    <cite>- David M., Toronto</cite>
-                </div>
-                <div class="testimonial">
-                    <p>"The TEF exam preparation course was exactly what I needed. I felt confident and well-prepared on test day."</p>
-                    <cite>- Emily D., Mississauga</cite>
-                </div>
-                <div class="testimonial">
-                    <p>"I highly recommend FRENCH.GTA. The online classes are engaging, and the instructors make learning French fun!"</p>
-                    <cite>- Gurpreet K., Brampton</cite>
-                </div>
-            </div>
+            <div id="testimonials"></div>
         </section>
         <div class="section-divider"></div>
 
@@ -278,6 +264,25 @@
             &copy; {{ current_year }} FRENCH.GTA. All rights reserved.
         </div>
     </footer>
+
+    <script>
+    fetch('/testimonials')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('testimonials');
+        if (data.testimonials && data.testimonials.length > 0) {
+          container.innerHTML = data.testimonials.map(t => `
+            <div class="testimonial">
+              <img src="/static/img/testimonials/${t.photo}" alt="${t.name}" />
+              <p>"${t.text}"</p>
+              <cite>- ${t.name}</cite>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = '<p>No testimonials yet.</p>';
+        }
+      });
+    </script>
 </body>
 
 </html>
