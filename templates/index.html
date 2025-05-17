@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRENCH.GTA - Online French Language Courses</title>
+    <meta name="description"
+        content="Achieve your French language goals with FRENCH.GTA's effective online courses.  Certified instructors, flexible schedules, and TEF exam preparation to boost your Canadian immigration prospects.">
+    <meta name="keywords"
+        content="online French courses, learn French online, French classes, TEF exam prep, French for immigration, Express Entry, French language learning, FRENCH.GTA">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/french.gta logo.jpg') }}" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Oswald:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "FRENCH.GTA",
+      "image": "https://www.yourwebsite.com/logo.png",
+      "telephone": "+1-365-306-2049",
+      "email": "frenchgta.ca@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "[Insert Address]",
+        "addressLocality": "Mississauga",
+        "addressRegion": "ON",
+        "postalCode": "[Insert Postal Code]",
+        "addressCountry": "CA"
+      },
+      "url": "https://www.yourwebsite.com",
+      "priceRange": "$$-$$$",
+       "sameAs" : [ "your facebook link",
+    "your twitter link",
+    "your instagram link"]
+    }
+    </script>
+</head>
+
+<body>
+    <div class="flag-banner" style="justify-content:center; margin-top:0.5rem;">
+        <img src="{{ url_for('static', filename='img/france.svg') }}" alt="France" class="flag-icon">
+        <span class="flag-separator">+</span>
+        <img src="{{ url_for('static', filename='img/canada.svg') }}" alt="Canada" class="flag-icon">
+    </div>
+    <div class="preloader">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="modal" id="demoModal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Inquire Now</h2>
+            <p>Please enter your details below.</p>
+            <form id="modal-form" class="contact-form" action="{{ url_for('submit_inquiry') }}" method="POST">
+                <label for="modal-name">Name:</label>
+                <input type="text" id="modal-name" name="name" required>
+
+                <label for="modal-email">Email:</label>
+                <input type="email" id="modal-email" name="email" required>
+
+                <button type="submit" class="cta-button modal-cta">Submit</button>
+            </form>
+            <div id="modal-form-message"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Thank You!</h2>
+            <p id="successMessage">Thank you for reaching out to us! We will get back to you shortly.</p>
+            <a id="whatsappButton" href="#" target="_blank" class="cta-button">Message Us on WhatsApp</a>
+        </div>
+    </div>
+
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">FRENCH.GTA</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('services') }}">Services</a></li>
+                <li><a href="{{ url_for('about') }}">About Us</a></li>
+                <li><a href="{{ url_for('blog') }}">Blog</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="section-bg"></div>
+            <div class="hero-content">
+                <h1 class="heritage">Unlock Your Potential: Learn French Online with FRENCH.GTA</h1>
+                <p>Achieve fluency and open doors to new opportunities with FRENCH.GTA's engaging and effective online French courses. Whether you're aiming for personal enrichment, career advancement, or Canadian immigration, we're here to guide you.</p>
+                <button class="cta-button" data-lang="fr,en,es,de,it">Discover Our Online Courses</button>
+            </div>
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='img/HeroImg.jpeg') }}" alt="Students learning French online" loading="lazy" style="max-width: 420px; border-radius: 18px; box-shadow: 0 8px 32px rgba(3,51,87,0.18);">
+            </div>
+        </section>
+        <div class="section-divider"></div>
+
+        <section class="features animate-on-scroll">
+            <h2>Why Choose FRENCH.GTA?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <img src="{{ url_for('static', filename='img/certified_inst.jpeg') }}" alt="Certified Instructors" class="feature-icon">
+                    <h3>Certified Instructors</h3>
+                    <p>Learn from passionate, certified French instructors dedicated to your success.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="{{ url_for('static', filename='img/flexible.jpeg') }}" alt="Flexible Schedules" class="feature-icon">
+                    <h3>Flexible Schedules</h3>
+                    <p>Access high-quality French instruction from the comfort of your home, on your schedule.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="{{ url_for('static', filename='img/resources.jpeg') }}" alt="Rich Resources" class="feature-icon">
+                    <h3>Rich Resources</h3>
+                    <p>Benefit from a wealth of learning materials, practice tests, and interactive activities.</p>
+                </div>
+            </div>
+        </section>
+        <div class="section-divider"></div>
+
+        <section class="community animate-on-scroll">
+            <h2>Our Vibrant Community</h2>
+            <div class="community-content">
+                <img src="{{ url_for('static', filename='img/french students.svg') }}" alt="French Students" class="community-img">
+                <p>Join a diverse, supportive community of learners and teachers from around the world. Share your journey, make friends, and grow together!</p>
+            </div>
+        </section>
+        <div class="section-divider"></div>
+
+        <section class="mobile-app animate-on-scroll">
+            <h2>Learn Anywhere, Anytime</h2>
+            <div class="app-links">
+                <img src="{{ url_for('static', filename='img/App_store.jpeg') }}" alt="App Store" class="app-icon">
+                <img src="{{ url_for('static', filename='img/play_store.jpeg') }}" alt="Play Store" class="app-icon">
+            </div>
+            <p>Access your courses and resources on the go with our mobile-friendly platform.</p>
+        </section>
+        <div class="section-divider"></div>
+
+        <section class="payment-options-section animate-on-scroll">
+            <h2>Easy & Secure Payments</h2>
+            <div class="payment-icons">
+                <img src="{{ url_for('static', filename='img/paypal.svg') }}" alt="PayPal" class="payment-icon">
+                <img src="{{ url_for('static', filename='img/interac.svg') }}" alt="Interac" class="payment-icon">
+            </div>
+            <p>Pay securely with PayPal, Interac, and more. Your information is always protected.</p>
+        </section>
+        <div class="section-divider"></div>
+
+        <section class="why-french-canada animate-on-scroll">
+            <div class="section-bg maple-eiffel-bg"></div>
+            <h2>Why French for Canada?</h2>
+            <div class="canada-french-icons">
+                <img src="{{ url_for('static', filename='img/maple_leaf.png') }}" alt="Maple Leaf" class="icon-large">
+                <img src="{{ url_for('static', filename='img/effiel_tower.png') }}" alt="Eiffel Tower" class="icon-large">
+            </div>
+            <p>French is not just a beautiful language—it's your bridge to Canadian immigration, education, and career success. Preparing for the TCF or TEF exam with FRENCH.GTA gives you a competitive edge for Express Entry, provincial programs, and life in Canada.</p>
+            <ul class="canada-benefits">
+                <li><img src="{{ url_for('static', filename='img/passport.svg') }}" class="icon-small"> Extra CRS points for Express Entry</li>
+                <li><img src="{{ url_for('static', filename='img/immigration.svg') }}" class="icon-small"> Dedicated French-speaking immigration streams</li>
+                <li><img src="{{ url_for('static', filename='img/canada.svg') }}" class="icon-small"> Thrive in bilingual Canadian cities</li>
+            </ul>
+        </section>
+        <div class="section-divider"></div>
+
+        <section class="testimonials animate-on-scroll">
+            <h2>What Our Students Say</h2>
+            <div class="testimonial-slider">
+                <div class="testimonial">
+                    <img src="{{ url_for('static', filename='img/Gemini_Generated_Image_pg81h9pg81h9pg81.png') }}" alt="Student Success" class="testimonial-img">
+                    <p>"FRENCH.GTA's online classes are fantastic! The instructors are so supportive, and I've learned so much."</p>
+                    <cite>- David M., Toronto</cite>
+                </div>
+                <div class="testimonial">
+                    <p>"The TEF exam preparation course was exactly what I needed. I felt confident and well-prepared on test day."</p>
+                    <cite>- Emily D., Mississauga</cite>
+                </div>
+                <div class="testimonial">
+                    <p>"I highly recommend FRENCH.GTA. The online classes are engaging, and the instructors make learning French fun!"</p>
+                    <cite>- Gurpreet K., Brampton</cite>
+                </div>
+            </div>
+        </section>
+        <div class="section-divider"></div>
+
+        <section class="about-snippet animate-on-scroll">
+            <div class="section-bg"></div>
+            <h2>About FRENCH.GTA: Your Partner in French Language Success</h2>
+            <p>We are dedicated to providing exceptional online French language education. Our experienced instructors and communicative teaching methods ensure an effective and enjoyable learning experience.</p>
+            <button class="cta-button" data-lang="fr,en,es,de,it">Discover Our Approach</button>
+        </section>
+        <div class="section-divider"></div>
+
+        <section class="contact-whatsapp">
+            <a href="https://wa.me/+13653062049?text=Hi%20FRENCH.GTA%2C%20Can%20i%20know%20more%20about%20it?" 
+               target="_blank" class="cta-button">
+               Chat with us on WhatsApp
+            </a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="french-bar"></div>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>FRENCH.GTA</h3>
+                <p>Bringing the French language to life online.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('services') }}">Services</a></li>
+                    <li><a href="{{ url_for('about') }}">About Us</a></li>
+                    <li><a href="{{ url_for('careers') }}">Careers</a></li>
+                    <li><a href="{{ url_for('blog') }}">Blog</a></li>
+                    <li><a href="{{ url_for('testimonials') }}">Testimonials</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="{{ url_for('terms') }}">Terms and Conditions</a></li>
+                    <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
+                    <li><a href="{{ url_for('guidelines') }}">Guidelines & Policies</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Phone: +1-365-306-2049</p>
+                <p>Email: frenchgta.ca@gmail.com</p>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="proudly-canada">
+            <img src="{{ url_for('static', filename='img/canada.svg') }}" alt="Canada" class="flag-icon">
+            Proudly helping newcomers to Canada
+        </div>
+        <div class="footer-motifs">
+            <img src="{{ url_for('static', filename='img/france.svg') }}" alt="France" class="footer-motif">
+            <img src="{{ url_for('static', filename='img/canada.svg') }}" alt="Canada" class="footer-motif">
+        </div>
+        <div class="copyright">
+            &copy; {{ current_year }} FRENCH.GTA. All rights reserved.
+        </div>
+    </footer>
+</body>
+
+</html>

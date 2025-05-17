@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body { background: #f7f8fa; font-family: 'Segoe UI', Arial, sans-serif; }
+        .container.main-content { max-width: 1200px; margin: 40px auto; background: #fff; border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); padding: 32px 32px 16px 32px; }
+        .page-title { font-size: 2.5em; font-weight: 700; margin-bottom: 24px; color: #1a2233; }
+        .summary-cards { display: flex; gap: 24px; margin-bottom: 32px; flex-wrap: wrap; }
+        .card { flex: 1; min-width: 180px; background: rgba(255,255,255,0.85); border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 24px; text-align: center; transition: box-shadow 0.2s; }
+        .card-animated:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+        .card h3 { font-size: 1.2em; color: #2d3a4a; margin-bottom: 8px; }
+        .card p { font-size: 2em; font-weight: 600; color: #0a7cff; margin: 0; }
+        .section-title { font-size: 1.3em; font-weight: 600; color: #0a7cff; margin: 32px 0 16px 0; }
+        .form-container { display: flex; gap: 32px; flex-wrap: wrap; }
+        .form { background: #f3f6fa; border-radius: 12px; padding: 20px; min-width: 280px; flex: 1; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+        .form-group { margin-bottom: 14px; }
+        .form-control, .search-bar, select, textarea { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 1em; }
+        .btn { display: inline-block; padding: 7px 18px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: background 0.2s; margin: 2px 0; }
+        .btn-primary { background: #0a7cff; color: #fff; }
+        .btn-secondary { background: #e0e7ef; color: #0a7cff; }
+        .btn-success { background: #4caf50; color: #fff; }
+        .btn-warning { background: #ffc107; color: #222; }
+        .btn-danger { background: #f44336; color: #fff; }
+        .btn-info { background: #17a2b8; color: #fff; }
+        .table { width: 100%; border-collapse: collapse; margin-bottom: 24px; background: #fff; border-radius: 10px; overflow: hidden; }
+        .table th, .table td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        .table th { background: #f3f6fa; color: #0a7cff; font-weight: 700; }
+        .table tr:last-child td { border-bottom: none; }
+        .search-bar { margin-bottom: 10px; border: 1px solid #bfc9d9; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 0.95em; font-weight: 600; }
+        .badge-paid { background: #e6f9ed; color: #2e7d32; }
+        .badge-pending { background: #fff8e1; color: #ff9800; }
+        .badge-overdue { background: #ffebee; color: #c62828; }
+        .progress-bar { background: #e3e8f0; border-radius: 8px; width: 100px; height: 18px; position: relative; }
+        .progress-bar-fill { border-radius: 8px; height: 100%; position: absolute; left: 0; top: 0; }
+        .progress-green { background: #4caf50 !important; }
+        .progress-yellow { background: #ffc107 !important; }
+        .progress-red { background: #f44336 !important; }
+        .progress-bar span { position: absolute; left: 0; right: 0; text-align: center; font-size: 12px; top: 0; color: #222; z-index: 2; }
+        .action-icons form, .action-icons button { display: inline-block; margin-right: 2px; }
+        .animate-on-scroll { opacity: 1; transition: opacity 0.6s; }
+        .charts, .analytics { background: #f3f6fa; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .pagination { text-align: center; margin: 24px 0; }
+        .pagination .btn { margin: 0 6px; }
+        @media (max-width: 900px) {
+            .summary-cards { flex-direction: column; gap: 12px; }
+            .form-container { flex-direction: column; gap: 12px; }
+        }
+        .dashboard-widget { display: inline-block; margin: 0 8px 8px 0; padding: 8px 16px; border-radius: 8px; background: #e3e8f0; cursor: pointer; }
+        .dashboard-widget.selected { background: #0a7cff; color: #fff; }
+        .audit-log-modal, .customize-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: center; }
+        .audit-log-content, .customize-content { background: #fff; border-radius: 12px; padding: 2rem; min-width: 350px; max-width: 90vw; max-height: 80vh; overflow-y: auto; }
+        .close-modal { float: right; cursor: pointer; font-size: 1.5em; color: #888; }
+        .currency-selector { float: right; margin-left: 1em; }
+        .admin-nav { display: flex; gap: 18px; margin-bottom: 28px; justify-content: center; align-items: center; background: #f3f6fa; border-radius: 10px; padding: 12px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .admin-nav-link { color: #0a7cff; font-weight: 600; text-decoration: none; padding: 7px 18px; border-radius: 6px; transition: background 0.2s, color 0.2s; }
+        .admin-nav-link.active, .admin-nav-link:hover { background: #0a7cff; color: #fff !important; }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+    <div class="container main-content" style="margin-top: 90px; background: #fff; border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); padding: 32px 32px 16px 32px; border: 1.5px solid #e0e7ef;">
+        <!-- Admin Navigation Bar -->
+        <nav class="admin-nav" style="display:flex; gap:18px; margin-bottom:28px; justify-content:center; align-items:center; background:#f3f6fa; border-radius:10px; padding:12px 0; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+            <a href="{{ url_for('admin_portal') }}" class="admin-nav-link{% if request.path == url_for('admin_portal') %} active{% endif %}"><i class="fa-solid fa-gauge"></i> Admin Portal</a>
+            <a href="{{ url_for('student_management') }}" class="admin-nav-link{% if request.path == url_for('student_management') %} active{% endif %}"><i class="fa-solid fa-users"></i> Student Management</a>
+            <a href="{{ url_for('teacher_management') }}" class="admin-nav-link{% if request.path == url_for('teacher_management') %} active{% endif %}"><i class="fa-solid fa-chalkboard-teacher"></i> Teacher Management</a>
+            <a href="{{ url_for('blog_management') }}" class="admin-nav-link{% if request.path == url_for('blog_management') %} active{% endif %}"><i class="fa-solid fa-blog"></i> Blog Management</a>
+            <a href="{{ url_for('query_management') }}" class="admin-nav-link{% if request.path == url_for('query_management') %} active{% endif %}"><i class="fa-solid fa-question"></i> Query Management</a>
+            <a href="{{ url_for('financial_management') }}" class="admin-nav-link active"><i class="fa-solid fa-coins"></i> Financial Management</a>
+        </nav>
+        <style>
+            .admin-nav-link { color: #0a7cff; font-weight: 600; text-decoration: none; padding: 7px 18px; border-radius: 6px; transition: background 0.2s, color 0.2s; }
+            .admin-nav-link.active, .admin-nav-link:hover { background: #0a7cff; color: #fff !important; }
+        </style>
+        <h1 class="page-title animate-on-scroll">Financial Management</h1>
+        <div class="summary-cards">
+            <div class="card card-animated">
+                <h3><i class="fa-solid fa-sack-dollar"></i> Total Revenue</h3>
+                <p style="font-size:2em;">${{ total_revenue or 0 }}</p>
+            </div>
+            <div class="card card-animated">
+                <h3><i class="fa-solid fa-money-bill-trend-up"></i> Monthly Revenue</h3>
+                <p style="font-size:2em;">${{ monthly_revenue or 0 }}</p>
+            </div>
+            <div class="card card-animated">
+                <h3><i class="fa-solid fa-coins"></i> Total Expenses</h3>
+                <p style="font-size:2em;">${{ total_expenses or 0 }}</p>
+            </div>
+            <div class="card card-animated">
+                <h3><i class="fa-solid fa-piggy-bank"></i> Net Profit</h3>
+                <p style="font-size:2em;">${{ net_profit or 0 }}</p>
+            </div>
+            <div class="card card-animated">
+                <h3><i class="fa-solid fa-vault"></i> Total Reserves</h3>
+                <p style="font-size:2em;">${{ reserves | sum(attribute='amount') | round(2) if reserves else 0 }}</p>
+            </div>
+        </div>
+        <section class="filters animate-on-scroll">
+            <div class="section-title"><i class="fa-solid fa-filter"></i> Advanced Filters & Export
+                <button class="btn btn-secondary" type="button" onclick="toggleAdvancedFilters()"><i class="fa-solid fa-sliders-h"></i> Show/Hide Advanced</button>
+                <select class="currency-selector" id="currencySelector">
+                    <option value="CAD">CAD</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+                <button class="btn btn-secondary" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                <button class="btn btn-secondary" onclick="openCustomizeModal()"><i class="fa-solid fa-sliders-h"></i> Customize Dashboard</button>
+                <button class="btn btn-secondary" onclick="openAuditLogModal()"><i class="fa-solid fa-history"></i> Audit Log</button>
+            </div>
+            <form method="GET" action="{{ url_for('financial_management') }}" class="form-inline" id="mainFilterForm">
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <select name="type" class="form-control" title="Type: Revenue, Expense, Reserve, All">
+                        <option value="">All Types</option>
+                        <option value="revenue" {% if filter_type == 'revenue' %}selected{% endif %}>Revenue</option>
+                        <option value="expense" {% if filter_type == 'expense' %}selected{% endif %}>Expense</option>
+                        <option value="reserve" {% if filter_type == 'reserve' %}selected{% endif %}>Reserve</option>
+                    </select>
+                    <select name="category" class="form-control" title="Category">
+                        <option value="">All Categories</option>
+                        <option value="Marketing" {% if filter_category == 'Marketing' %}selected{% endif %}>Marketing</option>
+                        <option value="Sales" {% if filter_category == 'Sales' %}selected{% endif %}>Sales</option>
+                        <option value="Tech" {% if filter_category == 'Tech' %}selected{% endif %}>Tech</option>
+                        <option value="Salaries" {% if filter_category == 'Salaries' %}selected{% endif %}>Salaries</option>
+                        <option value="Founder Profit Share" {% if filter_category == 'Founder Profit Share' %}selected{% endif %}>Founder Profit Share</option>
+                        <option value="Miscellaneous" {% if filter_category == 'Miscellaneous' %}selected{% endif %}>Miscellaneous</option>
+                        <option value="Reserve Usage" {% if filter_category == 'Reserve Usage' %}selected{% endif %}>Reserve Usage</option>
+                    </select>
+                    <input type="number" name="min_amount" class="form-control" placeholder="Min Amount" value="{{ min_amount or '' }}" title="Minimum amount (e.g. 200)">
+                    <input type="number" name="max_amount" class="form-control" placeholder="Max Amount" value="{{ max_amount or '' }}" title="Maximum amount (e.g. 500)">
+                    <input type="date" name="start_date" class="form-control" value="{{ start_date or '' }}" title="Start Date">
+                    <input type="date" name="end_date" class="form-control" value="{{ end_date or '' }}" title="End Date">
+                    <input type="text" name="search" class="form-control" placeholder="Name/Description" value="{{ request.args.get('search', '') }}" title="Search by name or description">
+                    <select name="payment_status" class="form-control" title="Payment Status">
+                        <option value="">All Statuses</option>
+                        <option value="Paid" {% if request.args.get('payment_status') == 'Paid' %}selected{% endif %}>Paid</option>
+                        <option value="Pending" {% if request.args.get('payment_status') == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Overdue" {% if request.args.get('payment_status') == 'Overdue' %}selected{% endif %}>Overdue</option>
+                    </select>
+                    <select name="teacher" class="form-control" title="Teacher">
+                        <option value="">All Teachers</option>
+                        {% for instructor in instructors %}
+                        <option value="{{ instructor.name }}" {% if request.args.get('teacher') == instructor.name %}selected{% endif %}>{{ instructor.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="student" class="form-control" title="Student">
+                        <option value="">All Students</option>
+                        {% for student in students %}
+                        <option value="{{ student.name }}" {% if request.args.get('student') == student.name %}selected{% endif %}>{{ student.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="attachment" class="form-control" title="Attachment">
+                        <option value="">All</option>
+                        <option value="yes" {% if request.args.get('attachment') == 'yes' %}selected{% endif %}>Has Attachment</option>
+                        <option value="no" {% if request.args.get('attachment') == 'no' %}selected{% endif %}>No Attachment</option>
+                    </select>
+                    <select name="notes" class="form-control" title="Notes">
+                        <option value="">All</option>
+                        <option value="yes" {% if request.args.get('notes') == 'yes' %}selected{% endif %}>Has Notes</option>
+                        <option value="no" {% if request.args.get('notes') == 'no' %}selected{% endif %}>No Notes</option>
+                    </select>
+                    <input type="text" name="custom_query" class="form-control" placeholder="Custom Query (e.g. amount > 200 AND category = 'Books')" value="{{ request.args.get('custom_query', '') }}" title="Advanced custom query (placeholder)">
+                    <select name="quick_preset" class="form-control" title="Quick Presets">
+                        <option value="">Quick Presets</option>
+                        <option value="this_month" {% if request.args.get('quick_preset') == 'this_month' %}selected{% endif %}>This Month</option>
+                        <option value="last_month" {% if request.args.get('quick_preset') == 'last_month' %}selected{% endif %}>Last Month</option>
+                        <option value="this_year" {% if request.args.get('quick_preset') == 'this_year' %}selected{% endif %}>This Year</option>
+                        <option value="last_7_days" {% if request.args.get('quick_preset') == 'last_7_days' %}selected{% endif %}>Last 7 Days</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetFilters()"><i class="fa-solid fa-eraser"></i> Reset Filters</button>
+                    <a href="{{ url_for('financial_management', export='csv', type=filter_type, category=filter_category, min_amount=min_amount, max_amount=max_amount, start_date=start_date, end_date=end_date) }}" class="btn btn-secondary"><i class="fa-solid fa-file-csv"></i> Export CSV</a>
+                </div>
+                <div id="advancedFilters" style="display:none; margin-top:10px;">
+                    <!-- Add more advanced filters here as needed -->
+                    <span style="color:#888;">Advanced filter options coming soon...</span>
+                </div>
+            </form>
+        </section>
+        <section class="add-financials animate-on-scroll">
+            <div class="form-container">
+                <form method="POST" action="{{ url_for('add_revenue') }}" class="form">
+                    <h3><i class="fa-solid fa-plus"></i> Add Revenue</h3>
+                    <div class="form-group">
+                        <label for="student_id">Select Student:</label>
+                        <select name="student_id" id="student_id" class="form-control" required>
+                            {% for student in students %}
+                            <option value="{{ student.id }}">{{ student.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="classes_per_month">Classes Per Month:</label>
+                        <input type="number" name="classes_per_month" id="classes_per_month" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (CAD):</label>
+                        <input type="number" name="amount" id="amount" class="form-control" required step="0.01">
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Revenue</button>
+                </form>
+                <form method="POST" action="{{ url_for('add_expense') }}" class="form" enctype="multipart/form-data">
+                    <h3><i class="fa-solid fa-minus"></i> Add Expense</h3>
+                    <div class="form-group">
+                        <label for="expense_name">Expense Name:</label>
+                        <input type="text" name="expense_name" id="expense_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <select name="category" id="category" class="form-control" required>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Tech">Tech</option>
+                            <option value="Salaries">Salaries</option>
+                            <option value="Founder Profit Share">Founder Profit Share</option>
+                            <option value="Miscellaneous">Miscellaneous</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type:</label>
+                        <select name="type" id="type" class="form-control" required>
+                            <option value="Recurring">Recurring</option>
+                            <option value="One Time">One Time</option>
+                            <option value="Loss">Loss</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Name (if applicable):</label>
+                        <select name="name" id="name" class="form-control">
+                            <option value="">None</option>
+                            {% for instructor in instructors %}
+                            <option value="{{ instructor.name }}">{{ instructor.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (CAD):</label>
+                        <input type="number" name="amount" id="amount" class="form-control" required step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="note">Note:</label>
+                        <textarea name="note" id="note" class="form-control"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="attachment">Attachment:</label>
+                        <input type="file" name="attachment" id="attachment" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-warning">Add Expense</button>
+                </form>
+            </div>
+        </section>
+        <section class="student-payments animate-on-scroll">
+            <div class="section-title"><i class="fa-solid fa-user-graduate"></i> Student Payment Tracking</div>
+            <input type="text" id="studentSearch" class="search-bar" placeholder="Search students..." onkeyup="filterStudents()">
+            <table class="table" id="studentTable">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Contact</th>
+                        <th>Total Classes</th>
+                        <th>Remaining</th>
+                        <th>Progress</th>
+                        <th>Payment Status</th>
+                        <th>Next Payment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td><a href="{{ url_for('student_profile', student_id=student.id) }}">{{ student.name }}</a></td>
+                        <td>{{ student.contact or 'N/A' }}</td>
+                        <td>{{ student.total_classes or 0 }}</td>
+                        <td>{{ student.remaining_classes or 0 }}</td>
+                        {% set progress = 100 - ((student.remaining_classes or 0) / (student.total_classes or 1) * 100) %}
+                        {% if progress > 80 %}
+                            {% set progress_class = 'progress-green' %}
+                        {% elif progress > 50 %}
+                            {% set progress_class = 'progress-yellow' %}
+                        {% else %}
+                            {% set progress_class = 'progress-red' %}
+                        {% endif %}
+                        <td>
+                            <div class="progress-bar" style="background: #e3e8f0; border-radius: 8px; width: 100px; height: 18px; position: relative;">
+                                <div class="progress-bar-fill {{ progress_class }}" style="width: {{ progress|round(0) }}%;"></div>
+                                <span>{{ progress|round(0) }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if student.payment_status == 'Paid' %}
+                                <span class="badge badge-paid">Paid</span>
+                            {% elif student.payment_status == 'Pending' %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% elif student.payment_status == 'Overdue' %}
+                                <span class="badge badge-overdue">Overdue</span>
+                            {% else %}
+                                <span class="badge">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ student.next_payment_date or 'N/A' }}</td>
+                        <td class="action-icons">
+                            <form method="POST" action="{{ url_for('update_payment_status', student_id=student.id) }}" style="display: inline;">
+                                <select name="payment_status">
+                                    <option value="Paid" {% if student.payment_status == 'Paid' %}selected{% endif %}>Paid</option>
+                                    <option value="Pending" {% if student.payment_status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Overdue" {% if student.payment_status == 'Overdue' %}selected{% endif %}>Overdue</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-info tooltip"><i class="fa-solid fa-rotate"></i><span class="tooltiptext">Update Status</span></button>
+                            </form>
+                            <button class="btn btn-sm btn-warning tooltip" onclick="document.getElementById('paymentDateForm_{{ student.id }}').style.display='block'"><i class="fa-solid fa-calendar-plus"></i><span class="tooltiptext">Update Date</span></button>
+                            <form method="POST" action="{{ url_for('update_next_payment_date', student_id=student.id) }}" id="paymentDateForm_{{ student.id }}" style="display:none; margin-top: 5px;">
+                                <input type="date" name="next_payment_date">
+                                <button type="submit" class="btn btn-sm btn-success">Save</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('send_fee_notification', student_id=student.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-secondary tooltip"><i class="fa-solid fa-envelope"></i><span class="tooltiptext">Send Reminder</span></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <section class="revenue animate-on-scroll">
+            <div class="section-title"><i class="fa-solid fa-arrow-trend-up"></i> Revenue</div>
+            <input type="text" id="revenueSearch" placeholder="Search Revenue..." onkeyup="filterTable('revenueTable', this.value)">
+            <button class="btn btn-danger" onclick="bulkDelete('revenueTable')"><i class="fa-solid fa-trash"></i> Bulk Delete</button>
+            <table class="table" id="revenueTable">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" onclick="toggleAll(this, 'revenueTable')"></th>
+                        <th>Student Name</th>
+                        <th>Classes Per Month</th>
+                        <th>Instructor</th>
+                        <th>Amount (CAD)</th>
+                        <th>Notes</th>
+                        <th>Attachment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for revenue in revenues %}
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td>{{ revenue.student_name }}</td>
+                        <td>{{ revenue.classes_per_month }}</td>
+                        <td>{{ revenue.teacher_name or revenue.instructor_name or 'N/A' }}</td>
+                        <td>{{ revenue.amount }}</td>
+                        <td>{{ revenue.note or '' }}</td>
+                        <td>{% if revenue.attachment %}<a href="{{ url_for('static', filename='uploads/' ~ revenue.attachment) }}" target="_blank">View</a>{% else %}-{% endif %}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('edit_revenue', revenue_id=revenue.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-info tooltip"><i class="fa-solid fa-pen"></i><span class="tooltiptext">Edit</span></button>
+                            </form>
+                            <form method="POST" action="{{ url_for('delete_revenue', revenue_id=revenue.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger tooltip"><i class="fa-solid fa-trash"></i><span class="tooltiptext">Delete</span></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <section class="expenses animate-on-scroll">
+            <div class="section-title"><i class="fa-solid fa-arrow-trend-down"></i> Expenses</div>
+            <input type="text" id="expenseSearch" placeholder="Search Expenses..." onkeyup="filterTable('expenseTable', this.value)">
+            <button class="btn btn-danger" onclick="bulkDelete('expenseTable')"><i class="fa-solid fa-trash"></i> Bulk Delete</button>
+            <table class="table" id="expenseTable">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" onclick="toggleAll(this, 'expenseTable')"></th>
+                        <th>Expense Name</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Amount (CAD)</th>
+                        <th>Notes</th>
+                        <th>Attachment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td>{{ expense.expense_name }}</td>
+                        <td>{{ expense.category }}</td>
+                        <td>{{ expense.type }}</td>
+                        <td>{{ expense.name or 'N/A' }}</td>
+                        <td>{{ expense.amount }}</td>
+                        <td>{{ expense.note or '' }}</td>
+                        <td>{% if expense.attachment %}<a href="{{ url_for('static', filename='uploads/' ~ expense.attachment) }}" target="_blank">View</a>{% else %}-{% endif %}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('edit_expense', expense_id=expense.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-info tooltip"><i class="fa-solid fa-pen"></i><span class="tooltiptext">Edit</span></button>
+                            </form>
+                            <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger tooltip"><i class="fa-solid fa-trash"></i><span class="tooltiptext">Delete</span></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <section class="records animate-on-scroll">
+            <div class="section-title"><i class="fa-solid fa-list"></i> All Records</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.type or 'N/A' }}</td>
+                        <td>{{ record.category or 'N/A' }}</td>
+                        <td>{{ record.amount or 0 }}</td>
+                        <td>{{ record.date or 'N/A' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">No records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <section class="pagination animate-on-scroll">
+            {% if page > 1 %}
+            <a href="{{ url_for('financial_management', page=page-1, type=filter_type, category=filter_category, min_amount=min_amount, max_amount=max_amount, start_date=start_date, end_date=end_date) }}" class="btn btn-secondary">Previous</a>
+            {% endif %}
+            <span>Page {{ page }}</span>
+            {% if records|length == per_page %}
+            <a href="{{ url_for('financial_management', page=page+1, type=filter_type, category=filter_category, min_amount=min_amount, max_amount=max_amount, start_date=start_date, end_date=end_date) }}" class="btn btn-secondary">Next</a>
+            {% endif %}
+        </section>
+        <section class="charts animate-on-scroll">
+            <div class="section-title"><i class="fa-solid fa-chart-line"></i> Revenue and Expense Trends</div>
+            <canvas id="financialChart"></canvas>
+        </section>
+        <section class="add-reserve animate-on-scroll">
+            <div class="form-container">
+                <form method="POST" action="{{ url_for('add_reserve') }}" class="form">
+                    <h3><i class="fa-solid fa-vault"></i> Add Reserve</h3>
+                    <div class="form-group">
+                        <label for="reserve_name">Reserve Name:</label>
+                        <input type="text" name="reserve_name" id="reserve_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (CAD):</label>
+                        <input type="number" name="amount" id="reserve_amount" class="form-control" required step="0.01">
+                    </div>
+                    <button type="submit" class="btn btn-info">Add Reserve</button>
+                </form>
+            </div>
+        </section>
+        <section class="reserves animate-on-scroll">
+            <div class="section-title"><i class="fa-solid fa-vault"></i> Reserves</div>
+            <input type="text" id="reserveSearch" placeholder="Search Reserves..." onkeyup="filterTable('reserveTable', this.value)">
+            <table class="table" id="reserveTable">
+                <thead>
+                    <tr>
+                        <th>Reserve Name</th>
+                        <th>Amount (CAD)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserve in reserves %}
+                    <tr>
+                        <td>{{ reserve.reserve_name }}</td>
+                        <td>{{ reserve.amount }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('edit_reserve', reserve_id=reserve.id) }}" style="display:inline;">
+                                <button type="submit">Edit</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('delete_reserve', reserve_id=reserve.id) }}" style="display:inline;">
+                                <button type="submit">Delete</button>
+                            </form>
+                            <!-- Use Reserve Button -->
+                            <button onclick="document.getElementById('useReserveForm_{{ reserve.id }}').style.display='block'">Use Reserve</button>
+                            <form method="POST" action="{{ url_for('add_expense') }}" id="useReserveForm_{{ reserve.id }}" style="display:none;">
+                                <input type="hidden" name="expense_name" value="From Reserve: {{ reserve.reserve_name }}">
+                                <input type="hidden" name="category" value="Reserve Usage">
+                                <input type="hidden" name="type" value="One Time">
+                                <input type="hidden" name="name" value="Reserve">
+                                <input type="number" name="amount" value="{{ reserve.amount }}" step="0.01" required>
+                                <button type="submit">Confirm Use</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <section class="dashboard-features animate-on-scroll">
+            <div class="section-title"><i class="fa-solid fa-bolt"></i> Coming Soon: More Features</div>
+            <ul>
+                <li>Export to PDF/CSV</li>
+                <li>Advanced analytics and charts</li>
+                <li>Notes and attachments for each entry</li>
+                <li>Bulk actions (edit/delete multiple)</li>
+                <li>Customizable dashboard widgets</li>
+                <li>Automated reminders and notifications</li>
+                <li>Multi-currency support</li>
+                <li>Role-based access and permissions</li>
+                <li>Audit logs and history</li>
+                <li>And more!</li>
+            </ul>
+        </section>
+        <!-- Export to CSV buttons -->
+        <section>
+            <a href="{{ url_for('financial_management', export='csv', type='revenue') }}" class="btn btn-secondary">Export Revenue to CSV</a>
+            <a href="{{ url_for('financial_management', export='csv', type='expense') }}" class="btn btn-secondary">Export Expenses to CSV</a>
+            <a href="{{ url_for('financial_management', export='csv', type='reserve') }}" class="btn btn-secondary">Export Reserves to CSV</a>
+        </section>
+        <!-- Advanced Analytics Section -->
+        <section class="analytics">
+            <h2>Advanced Analytics</h2>
+            <canvas id="advancedChart"></canvas>
+            <div id="pieFallback" style="text-align:center; color:#888; margin-top:12px; display:none;">No data available for pie chart.</div>
+        </section>
+        <!-- Dashboard Customization Modal -->
+        <div class="customize-modal" id="customizeModal">
+            <div class="customize-content">
+                <span class="close-modal" onclick="closeCustomizeModal()">&times;</span>
+                <h2>Customize Dashboard</h2>
+                <div>
+                    <label><input type="checkbox" checked> Total Revenue</label><br>
+                    <label><input type="checkbox" checked> Monthly Revenue</label><br>
+                    <label><input type="checkbox" checked> Total Expenses</label><br>
+                    <label><input type="checkbox" checked> Net Profit</label><br>
+                    <label><input type="checkbox" checked> Total Reserves</label><br>
+                </div>
+                <button class="btn btn-primary" onclick="closeCustomizeModal()">Save</button>
+            </div>
+        </div>
+        <!-- Audit Log Modal -->
+        <div class="audit-log-modal" id="auditLogModal">
+            <div class="audit-log-content">
+                <span class="close-modal" onclick="closeAuditLogModal()">&times;</span>
+                <h2>Audit Log & History</h2>
+                <ul>
+                    <li>[2024-06-01 10:00] User admin added a revenue entry.</li>
+                    <li>[2024-06-01 10:05] User admin deleted an expense entry.</li>
+                    <li>[2024-06-01 10:10] User admin exported data to CSV.</li>
+                    <li>...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% include 'footer.html' %}
+    <script>
+        // Student search filter
+        function filterStudents() {
+            var input = document.getElementById('studentSearch');
+            var filter = input.value.toUpperCase();
+            var table = document.getElementById('studentTable');
+            var tr = table.getElementsByTagName('tr');
+            for (var i = 1; i < tr.length; i++) {
+                var td = tr[i].getElementsByTagName('td')[0];
+                if (td) {
+                    var txtValue = td.textContent || td.innerText;
+                    tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
+                }
+            }
+        }
+    </script>
+    <script>
+        // Chart.js for main financial chart
+        const financialLabels = {{ records|map(attribute='date')|list|default([])|tojson }};
+        const financialRevenueData = {{ records|selectattr('type', 'equalto', 'revenue')|map(attribute='amount')|list|default([])|tojson }};
+        const financialExpenseData = {{ records|selectattr('type', 'equalto', 'expense')|map(attribute='amount')|list|default([])|tojson }};
+        window.addEventListener('DOMContentLoaded', function() {
+            const financialCtx = document.getElementById('financialChart').getContext('2d');
+            new Chart(financialCtx, {
+                type: 'line',
+                data: {
+                    labels: financialLabels,
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: financialRevenueData,
+                            borderColor: 'green',
+                            fill: false
+                        },
+                        {
+                            label: 'Expenses',
+                            data: financialExpenseData,
+                            borderColor: 'red',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        x: { title: { display: true, text: 'Date' } },
+                        y: { title: { display: true, text: 'Amount' } }
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        function filterTable(tableId, searchValue) {
+            var input = searchValue.toUpperCase();
+            var table = document.getElementById(tableId);
+            var tr = table.getElementsByTagName('tr');
+            for (var i = 1; i < tr.length; i++) {
+                var rowText = tr[i].textContent || tr[i].innerText;
+                tr[i].style.display = rowText.toUpperCase().indexOf(input) > -1 ? '' : 'none';
+            }
+        }
+    </script>
+    <script>
+        // Chart.js for advanced analytics - Pie Chart
+        window.addEventListener('DOMContentLoaded', function() {
+            var revenue = {{ total_revenue|default(0)|tojson }};
+            var expenses = {{ total_expenses|default(0)|tojson }};
+            var reserves = {{ (reserves|sum(attribute='amount')|round(2) if reserves else 0)|tojson }};
+            var pieData = [revenue, expenses, reserves];
+            var pieLabels = ['Revenue', 'Expenses', 'Reserves'];
+            var hasData = pieData.some(function(val) { return val > 0; });
+            var ctx = document.getElementById('advancedChart').getContext('2d');
+            if (hasData) {
+                document.getElementById('pieFallback').style.display = 'none';
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: pieLabels,
+                        datasets: [{
+                            data: pieData,
+                            backgroundColor: ['#0a7cff', '#f44336', '#ffc107'],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: { enabled: true }
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('pieFallback').style.display = 'block';
+            }
+        });
+    </script>
+    <script>
+        // PDF Export
+        function exportPDF() {
+            html2pdf().from(document.querySelector('.main-content')).save('financial_report.pdf');
+        }
+        // Bulk Delete
+        function toggleAll(source, tableId) {
+            var checkboxes = document.querySelectorAll('#' + tableId + ' .row-checkbox');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+        function bulkDelete(tableId) {
+            var table = document.getElementById(tableId);
+            var checkboxes = table.querySelectorAll('.row-checkbox:checked');
+            if (checkboxes.length === 0) { alert('No rows selected.'); return; }
+            if (!confirm('Are you sure you want to delete selected entries?')) return;
+            // TODO: Implement backend bulk delete
+            alert('Bulk delete for ' + checkboxes.length + ' entries (UI only).');
+        }
+        // Dashboard Customization Modal
+        function openCustomizeModal() { document.getElementById('customizeModal').style.display = 'flex'; }
+        function closeCustomizeModal() { document.getElementById('customizeModal').style.display = 'none'; }
+        // Audit Log Modal
+        function openAuditLogModal() { document.getElementById('auditLogModal').style.display = 'flex'; }
+        function closeAuditLogModal() { document.getElementById('auditLogModal').style.display = 'none'; }
+        // Currency Selector (UI only)
+        document.getElementById('currencySelector').addEventListener('change', function() {
+            alert('Currency conversion is a placeholder. All values remain in CAD.');
+        });
+        // Advanced Filters
+        function toggleAdvancedFilters() {
+            var adv = document.getElementById('advancedFilters');
+            adv.style.display = adv.style.display === 'none' ? 'block' : 'none';
+        }
+        function resetFilters() {
+            document.getElementById('mainFilterForm').reset();
+            window.location = '{{ url_for('financial_management') }}';
+        }
+    </script>
+    <!-- Advanced Features Sections -->
+    <section class="advanced-features animate-on-scroll" style="background:#f7f8fa; border-radius:12px; margin:32px 0; padding:24px;">
+        <h2><i class="fa-solid fa-rocket"></i> Advanced Features</h2>
+        <ul style="columns:2;">
+            <li><b>Recurring Transactions</b> <span title="Schedule automatic revenue/expense entries.">🛈</span> <button class="btn btn-sm btn-info" onclick="openRecurringModal()">Manage</button></li>
+            <li><b>Approval Workflows</b> <span title="Require admin approval for large expenses.">🛈</span> <button class="btn btn-sm btn-info" onclick="openApprovalModal()">View</button></li>
+            <li><b>Budgeting</b> <span title="Set and track budgets per category.">🛈</span> <button class="btn btn-sm btn-info" onclick="openBudgetModal()">Set</button></li>
+            <li><b>Cash Flow Forecast</b> <span title="Visualize projected cash flow.">🛈</span> <button class="btn btn-sm btn-info" onclick="openCashFlowModal()">Show</button></li>
+            <li><b>Activity Feed</b> <span title="See all admin actions in real time.">🛈</span> <button class="btn btn-sm btn-info" onclick="openActivityModal()">Feed</button></li>
+            <li><b>Data Snapshots</b> <span title="Save and compare financial snapshots.">🛈</span> <button class="btn btn-sm btn-info" onclick="openSnapshotModal()">Snapshots</button></li>
+            <li><b>Custom Alerts</b> <span title="Trigger alerts for specific events.">🛈</span> <button class="btn btn-sm btn-info" onclick="openAlertsModal()">Alerts</button></li>
+            <li><b>Data Validation</b> <span title="Prevent duplicates, auto-suggest corrections.">🛈</span></li>
+            <li><b>API/Webhooks</b> <span title="Integrate with external tools.">🛈</span></li>
+        </ul>
+        <div style="margin-top:16px; color:#888;">All features are ready for backend expansion. See comments in app.py for stubs and logic.</div>
+    </section>
+    <!-- Recurring Transactions Modal -->
+    <div class="customize-modal" id="recurringModal" style="display:none;">
+        <div class="customize-content">
+            <span class="close-modal" onclick="closeRecurringModal()">&times;</span>
+            <h2>Recurring Transactions</h2>
+            <p>Schedule automatic revenue/expense entries (e.g., monthly salaries, subscriptions).</p>
+            <!-- TODO: Implement recurring logic in backend -->
+            <form><!-- UI for scheduling recurring entries --></form>
+        </div>
+    </div>
+    <!-- Approval Workflow Modal -->
+    <div class="customize-modal" id="approvalModal" style="display:none;">
+        <div class="customize-content">
+            <span class="close-modal" onclick="closeApprovalModal()">&times;</span>
+            <h2>Approval Workflows</h2>
+            <p>Require admin approval for large expenses or fund transfers.</p>
+            <!-- TODO: Implement approval logic in backend -->
+        </div>
+    </div>
+    <!-- Budget Modal -->
+    <div class="customize-modal" id="budgetModal" style="display:none;">
+        <div class="customize-content">
+            <span class="close-modal" onclick="closeBudgetModal()">&times;</span>
+            <h2>Budgeting</h2>
+            <p>Set and track budgets per category. Visualize progress.</p>
+            <!-- TODO: Implement budgeting logic in backend -->
+        </div>
+    </div>
+    <!-- Cash Flow Modal -->
+    <div class="customize-modal" id="cashFlowModal" style="display:none;">
+        <div class="customize-content">
+            <span class="close-modal" onclick="closeCashFlowModal()">&times;</span>
+            <h2>Cash Flow Forecast</h2>
+            <p>Visualize projected cash flow based on upcoming revenues/expenses.</p>
+            <!-- TODO: Implement cash flow logic in backend -->
+        </div>
+    </div>
+    <!-- Activity Feed Modal -->
+    <div class="customize-modal" id="activityModal" style="display:none;">
+        <div class="customize-content">
+            <span class="close-modal" onclick="closeActivityModal()">&times;</span>
+            <h2>Activity Feed</h2>
+            <p>Real-time feed of all admin actions (edits, deletions, logins).</p>
+            <!-- TODO: Implement activity feed logic in backend -->
+        </div>
+    </div>
+    <!-- Data Snapshots Modal -->
+    <div class="customize-modal" id="snapshotModal" style="display:none;">
+        <div class="customize-content">
+            <span class="close-modal" onclick="closeSnapshotModal()">&times;</span>
+            <h2>Data Snapshots</h2>
+            <p>Save and compare financial snapshots (e.g., "End of Q1 2024").</p>
+            <!-- TODO: Implement snapshot logic in backend -->
+        </div>
+    </div>
+    <!-- Custom Alerts Modal -->
+    <div class="customize-modal" id="alertsModal" style="display:none;">
+        <div class="customize-content">
+            <span class="close-modal" onclick="closeAlertsModal()">&times;</span>
+            <h2>Custom Alerts</h2>
+            <p>Trigger alerts for specific events (e.g., "Expense in Marketing > $1000").</p>
+            <!-- TODO: Implement alerts logic in backend -->
+        </div>
+    </div>
+    <script>
+        // Advanced Features Modal JS
+        function openRecurringModal() { document.getElementById('recurringModal').style.display = 'flex'; }
+        function closeRecurringModal() { document.getElementById('recurringModal').style.display = 'none'; }
+        function openApprovalModal() { document.getElementById('approvalModal').style.display = 'flex'; }
+        function closeApprovalModal() { document.getElementById('approvalModal').style.display = 'none'; }
+        function openBudgetModal() { document.getElementById('budgetModal').style.display = 'flex'; }
+        function closeBudgetModal() { document.getElementById('budgetModal').style.display = 'none'; }
+        function openCashFlowModal() { document.getElementById('cashFlowModal').style.display = 'flex'; }
+        function closeCashFlowModal() { document.getElementById('cashFlowModal').style.display = 'none'; }
+        function openActivityModal() { document.getElementById('activityModal').style.display = 'flex'; }
+        function closeActivityModal() { document.getElementById('activityModal').style.display = 'none'; }
+        function openSnapshotModal() { document.getElementById('snapshotModal').style.display = 'flex'; }
+        function closeSnapshotModal() { document.getElementById('snapshotModal').style.display = 'none'; }
+        function openAlertsModal() { document.getElementById('alertsModal').style.display = 'flex'; }
+        function closeAlertsModal() { document.getElementById('alertsModal').style.display = 'none'; }
+    </script>
+</body>
+</html>

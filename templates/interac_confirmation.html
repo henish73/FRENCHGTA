@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interac Payment Instructions</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #033357;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    main {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .highlight {
+      font-weight: bold;
+      color: #033357;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      color: white;
+      background-color: #033357;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background-color: #00204a;
+    }
+  </style>
+</head>
+<body>
+  {% include 'header.html' %}
+  <main>
+    <p>Thank you, <span class="highlight">{{ full_name }}</span>, for choosing the <span class="highlight">{{ item_name }}</span> plan.</p>
+    <p>The total amount is <span class="highlight">${{ amount }}</span>.</p>
+    <p>Please send your payment via Interac e-Transfer to the following email address:</p>
+    <p class="highlight">frenchgta.ca@gmail.com</p>
+    <p>Once we receive your payment, we will contact you to schedule your class.</p>
+    <a href="{{ url_for('services') }}" class="btn">Return to Services</a>
+  </main>
+  {% include 'footer.html' %}
+</body>
+</html>

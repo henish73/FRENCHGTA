@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refer a Friend | FRENCH.GTA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    {% include 'header.html' %}
+    <main class="main-content card">
+        <h1>Refer a Friend and Get $30 OFF!</h1>
+        <p>Share the gift of language! Refer a friend to FRENCH.GTA, and both you and your friend will receive a $30 discount on your next course enrollment.</p>
+        <h2>How It Works</h2>
+        <ol>
+            <li>Fill out the referral form below with your details and your friend's details.</li>
+            <li>We will contact your friend and invite them to join FRENCH.GTA.</li>
+            <li>When your friend enrolls in a course, both of you will receive a $30 discount on your next payment.</li>
+        </ol>
+        <h2>Referral Form</h2>
+        <form method="POST" action="{{ url_for('refer') }}" class="form">
+            <div class="form-group">
+                <label for="your_name">Your Name:</label>
+                <input type="text" id="your_name" name="your_name" required>
+            </div>
+            <div class="form-group">
+                <label for="your_email">Your Email:</label>
+                <input type="email" id="your_email" name="your_email" required>
+            </div>
+            <div class="form-group">
+                <label for="friend_name">Friend's Name:</label>
+                <input type="text" id="friend_name" name="friend_name" required>
+            </div>
+            <div class="form-group">
+                <label for="friend_email">Friend's Email:</label>
+                <input type="email" id="friend_email" name="friend_email" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message to Your Friend (optional):</label>
+                <textarea id="message" name="message" placeholder="Hi! I thought you might be interested in learning French with me at FRENCH.GTA!"></textarea>
+            </div>
+            <button type="submit" class="cta-button">Send Referral</button>
+        </form>
+        <p class="text-center" style="margin-top:2rem; font-size:0.95rem; color:#555;">We respect your privacy. Your friend's email will only be used to send this invitation and will not be added to any mailing list without their consent.</p>
+    </main>
+    {% include 'footer.html' %}
+</body>
+</html> 

@@ -1,0 +1,217 @@
+{% extends 'base_teacher.html' %}
+{% block title %}Teacher Chat{% endblock %}
+{% block content %}
+<h1 class="page-title">Chat</h1>
+<section class="chat-section" style="margin-bottom: 32px;">
+    <div class="chat-container-modern chat-container-distinct">
+        <div class="chat-header chat-header-distinct">
+            <h2 style="color:#fff;">Chat with Students</h2>
+            <div class="chat-actions">
+                <input type="file" id="chat-attachment" style="display:none;" multiple accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt" aria-label="Attach File">
+                <button id="attach-btn" class="chat-action-btn" title="Attach File" type="button" aria-label="Attach File"><i class="fa fa-paperclip"></i></button>
+                <button id="voice-record-btn" class="chat-action-btn" title="Record Voice" type="button" aria-label="Record Voice"><i class="fa fa-microphone"></i></button>
+                <button id="emoji-btn" class="chat-action-btn" title="Emoji" type="button" aria-label="Emoji"><i class="fa fa-smile"></i></button>
+            </div>
+        </div>
+        <!-- Student Selector Dropdown -->
+        <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 12px;">
+            <label for="student-select" style="color:#fff; font-weight:600;">Select Student:</label>
+            <select id="student-select" style="min-width:180px; border-radius:8px; padding:6px 10px;">
+                {% for student in students %}
+                <option value="{{ student.id }}">{{ student.user.name if student.user else 'Student' }} (ID: {{ student.id }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="chat-box-modern chat-box-distinct" id="chat-box" style="min-height:180px;"></div>
+        <div id="no-messages-placeholder" style="display:none; color:#fff; text-align:center; margin:18px 0; font-size:1.1em;">No messages yet. Start the conversation!</div>
+        <div id="typing-indicator" style="font-size:0.95em; color:#fff; display:none; margin:4px 0 0 8px;">Student is typing...</div>
+        <form id="chat-form" class="input-container-modern input-container-distinct">
+            <button type="button" id="attach-btn2" class="chat-action-btn" title="Attach File" aria-label="Attach File"><i class="fa fa-paperclip"></i></button>
+            <textarea id="message" placeholder="Type your message..." required aria-label="Type your message"></textarea>
+            <button type="button" id="emoji-btn2" class="chat-action-btn" title="Emoji" aria-label="Emoji"><i class="fa fa-smile"></i></button>
+            <button type="submit" class="chat-send-btn" title="Send" aria-label="Send"><i class="fa fa-paper-plane"></i></button>
+        </form>
+        <div id="emoji-picker" style="display:none; position:absolute; z-index:1000;"></div>
+        <div id="voice-recording-ui" style="display:none; margin-top:8px;">
+            <span id="recording-status">Recording...</span>
+            <button id="stop-record-btn" type="button">Stop</button>
+        </div>
+    </div>
+</section>
+<section>
+    <h2>Group Chat</h2>
+    <div>[Group Chat Creation Placeholder]</div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js" type="module"></script>
+<script>
+const teacherId = "{{ teacher_id }}";
+let studentId = document.getElementById('student-select') ? document.getElementById('student-select').value : '';
+let isRecording = false, mediaRecorder, recordedChunks = [];
+let typingTimeout;
+let emojiPicker;
+function fetchMessages() {
+    if (!studentId) {
+        $('#chat-box').empty();
+        $('#no-messages-placeholder').show();
+        return;
+    }
+    $.get('/fetch_messages', { teacher_id: teacherId, student_id: studentId }, (data) => {
+        const chatBox = $('#chat-box');
+        chatBox.empty();
+        if (!data || data.length === 0) {
+            $('#no-messages-placeholder').show();
+            return;
+        } else {
+            $('#no-messages-placeholder').hide();
+        }
+        data.forEach(msg => {
+            const messageClass = msg.sender_role === 'teacher' ? 'teacher' : 'student';
+            const avatarUrl = msg.sender_avatar || '/static/default_avatar.png';
+            let bubbleContent = autoLink(msg.message || '');
+            if (msg.attachment_url) {
+                if (msg.attachment_type && msg.attachment_type.startsWith('image/')) {
+                    bubbleContent += `<br><img src='${msg.attachment_url}' alt='image'>`;
+                } else if (msg.attachment_type && msg.attachment_type.startsWith('audio/')) {
+                    bubbleContent += `<br><audio controls src='${msg.attachment_url}'></audio>`;
+                } else if (msg.attachment_type && msg.attachment_type.startsWith('video/')) {
+                    bubbleContent += `<br><video controls src='${msg.attachment_url}'></video>`;
+                } else {
+                    bubbleContent += `<br><a href='${msg.attachment_url}' class='chat-attachment' target='_blank'>Download File</a>`;
+                }
+            }
+            if (msg.voice_url) {
+                bubbleContent += `<br><audio controls src='${msg.voice_url}'></audio>`;
+            }
+            chatBox.append(`
+                <div class="chat-message ${messageClass}">
+                    <img class="chat-avatar" src="${avatarUrl}" alt="avatar">
+                    <div class="chat-bubble">
+                        <div>${bubbleContent}</div>
+                        <div class="timestamp" style="font-size:0.8em; color:#888;">${msg.timestamp} <span style='float:right;'>${msg.status || ''}</span></div>
+                    </div>
+                </div>
+            `);
+        });
+        chatBox.scrollTop(chatBox[0].scrollHeight);
+    });
+}
+function autoLink(text) {
+    if (!text) return '';
+    return text.replace(/(https?:\/\/[\w\-\.\/\?#&=;%+~]+)|(www\.[\w\-\.\/\?#&=;%+~]+)/gi, function(url) {
+        let href = url;
+        if (!href.match(/^https?:\/\//)) href = 'http://' + href;
+        return `<a href='${href}' target='_blank'>${url}</a>`;
+    });
+}
+setInterval(fetchMessages, 2000); fetchMessages();
+document.getElementById('student-select').addEventListener('change', function() {
+    studentId = this.value;
+    fetchMessages();
+});
+document.getElementById('attach-btn').onclick = () => document.getElementById('chat-attachment').click();
+document.getElementById('attach-btn2').onclick = () => document.getElementById('chat-attachment').click();
+document.getElementById('emoji-btn').onclick = function(e) {
+    e.preventDefault();
+    if (!emojiPicker) {
+        emojiPicker = document.createElement('emoji-picker');
+        emojiPicker.addEventListener('emoji-click', event => {
+            document.getElementById('message').value += event.detail.unicode;
+            document.getElementById('emoji-picker').style.display = 'none';
+        });
+        document.getElementById('emoji-picker').appendChild(emojiPicker);
+    }
+    document.getElementById('emoji-picker').style.display = 'block';
+};
+document.getElementById('emoji-btn2').onclick = function(e) {
+    e.preventDefault();
+    if (!emojiPicker) {
+        emojiPicker = document.createElement('emoji-picker');
+        emojiPicker.addEventListener('emoji-click', event => {
+            document.getElementById('message').value += event.detail.unicode;
+            document.getElementById('emoji-picker').style.display = 'none';
+        });
+        document.getElementById('emoji-picker').appendChild(emojiPicker);
+    }
+    document.getElementById('emoji-picker').style.display = 'block';
+};
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#emoji-picker') && !e.target.closest('#emoji-btn') && !e.target.closest('#emoji-btn2')) {
+        document.getElementById('emoji-picker').style.display = 'none';
+    }
+});
+document.getElementById('voice-record-btn').onclick = async function(e) {
+    e.preventDefault();
+    if (isRecording) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Voice recording not supported in this browser.');
+        return;
+    }
+    document.getElementById('voice-recording-ui').style.display = 'flex';
+    document.getElementById('recording-status').textContent = 'Recording...';
+    isRecording = true;
+    recordedChunks = [];
+    mediaRecorder = null;
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+            sendMessage({ voiceBlob: blob });
+            isRecording = false;
+            document.getElementById('voice-recording-ui').style.display = 'none';
+        };
+        mediaRecorder.start();
+    } catch (err) {
+        alert('Could not start recording: ' + err.message);
+        isRecording = false;
+        document.getElementById('voice-recording-ui').style.display = 'none';
+    }
+};
+document.getElementById('stop-record-btn').onclick = function() {
+    if (mediaRecorder && isRecording) mediaRecorder.stop();
+};
+document.getElementById('message').addEventListener('input', function() {
+    clearTimeout(typingTimeout);
+    document.getElementById('typing-indicator').style.display = 'block';
+    typingTimeout = setTimeout(() => {
+        document.getElementById('typing-indicator').style.display = 'none';
+    }, 1200);
+});
+document.getElementById('chat-attachment').addEventListener('change', function(e) {
+    const files = e.target.files;
+    if (files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+            sendMessage({ file: files[i] });
+        }
+        this.value = '';
+    }
+});
+document.getElementById('chat-form').onsubmit = function(e) {
+    e.preventDefault();
+    sendMessage({ text: document.getElementById('message').value });
+};
+function sendMessage({ text, file, voiceBlob }) {
+    if (!studentId) { alert('Please select a student to chat with.'); return; }
+    const formData = new FormData();
+    formData.append('student_id', studentId);
+    if (text) formData.append('message', text);
+    if (file) formData.append('attachment', file);
+    if (voiceBlob) formData.append('voice', voiceBlob, 'voice.webm');
+    $.ajax({
+        url: '/teacher_send_message',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            document.getElementById('message').value = '';
+            fetchMessages();
+        },
+        error: function(xhr) {
+            alert('An error occurred while sending the message.');
+        }
+    });
+}
+</script>
+{% endblock %} 

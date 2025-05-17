@@ -1,0 +1,21 @@
+{% extends 'base_student.html' %}
+{% block title %}Student Profile{% endblock %}
+{% block content %}
+<h1>Profile</h1>
+<section>
+    <h2>My Profile</h2>
+    {% if student %}
+    <ul>
+        <li><b>Name:</b> {{ student.user.name if student.user else '' }}</li>
+        <li><b>Email:</b> {{ student.user.email if student.user else '' }}</li>
+        <li><b>Contact:</b> {{ student.contact }}</li>
+        <li><b>Teacher:</b> {{ student.teacher.name if student.teacher else '' }}</li>
+        <li><b>Nationality:</b> {{ student.nationality }}</li>
+        <li><b>Availability:</b> {{ student.availability }}</li>
+        <li><b>Notes:</b> {{ student.notes }}</li>
+    </ul>
+    {% else %}
+    <p>Profile not found.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Testimonials | FRENCH.GTA | French Language School Toronto</title>
+    <meta name="description" content="Read testimonials from our satisfied students and discover why FRENCH.GTA is the best choice for learning French in the Greater Toronto Area.">
+    <meta name="keywords" content="testimonials, student reviews, FRENCH.GTA, French language school, Toronto, GTA, learn French, success stories, French classes">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/french.gta logo.jpg') }}" type="image/x-icon">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <main class="main-content">
+        <section>
+            <h1>What Our Students Are Saying About FRENCH.GTA</h1>
+            <p>We're proud of the success our students have achieved in their French language learning journey. Read their testimonials below to see how FRENCH.GTA has helped them reach their goals.</p>
+
+            <div class="testimonial-container">  </div>
+                <div class="testimonial">
+                    <p>"I had tried learning French before, but I always struggled. FRENCH.GTA's instructors made it so much easier to understand and actually enjoy the process. I've made incredible progress!"</p>
+                    <cite>- Emily R., Mississauga</cite>
+                </div>
+
+                <div class="testimonial">
+                    <p>"The flexibility of the online classes was a lifesaver. I could fit my French lessons into my busy schedule, and the online resources were fantastic. I highly recommend FRENCH.GTA!"</p>
+                    <cite>- John S., Toronto</cite>
+                </div>
+
+                <div class="testimonial">
+                    <p>"The cultural workshops were a highlight for me. It was so much fun learning about French culture and practicing my speaking skills in a relaxed setting."</p>
+                    <cite>- Maria L., Brampton</cite>
+                </div>
+
+                <div class="testimonial">
+                  <p>"I needed to pass the DELF exam for my university application, and FRENCH.GTA's exam preparation course was exactly what I needed. The instructor was incredibly knowledgeable and supportive."</p>
+                  <cite>- David K., Oakville</cite>
+                </div>
+
+                <div class="testimonial">
+                  <p>"The small class sizes made a huge difference. I felt like I got personalized attention and could ask questions without feeling embarrassed."</p>
+                    <cite>- Sarah B., Vaughan</cite>
+                 </div>
+				 <div class="testimonial">
+                    <p>"FRENCH.GTA completely transformed my French skills! The instructors are amazing, and the learning environment is so supportive."</p>
+                    <cite>- Sarah J., Toronto</cite>
+                </div>
+                <div class="testimonial">
+                    <p>"I highly recommend FRENCH.GTA to anyone serious about learning French.  The flexible options and comprehensive resources made all the difference."</p>
+                    <cite>- David L., Mississauga</cite>
+                </div>
+                <div class="testimonial">
+					<p>"I was nervous about learning French, but FRENCH.GTA made it so enjoyable! The classes are interactive and fun, and I've made real progress."</p>
+					<cite>- Emily K., Brampton</cite>
+				</div>
+            
+        </section>
+    </main>
+
+    {% include 'footer.html' %}
+	 <style>
+	   .testimonial-container{
+	        display: grid; /* Use CSS Grid for layout */
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+			gap: 2rem;
+	   }
+        .testimonial {
+			padding: 2rem; /* More padding */
+			margin-bottom: 1.5rem;
+			border: 1px solid #e0e0e0;
+			border-radius: 8px;
+			background-color:#f9f9f9;
+        }
+
+        .testimonial p {
+            font-style: italic;
+            margin-bottom: 0.8rem;
+             color: #555; /* Slightly darker text */
+        }
+		 .testimonial cite {
+			font-weight: 600; /* Semi-bold */
+			color: #003087; /* Use the blue color */
+			display: block;  /* Make the cite a block element */
+			text-align: right; /* Align to the right */
+		}
+    </style>
+</body>
+</html>

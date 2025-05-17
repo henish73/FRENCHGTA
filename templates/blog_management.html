@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    <header class="admin-header">
+        <nav class="admin-nav">
+            <a href="{{ url_for('home') }}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ url_for('logout') }}" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </header>
+    <main class="portal-container">
+        <h1 class="page-title">Blog Management</h1>
+
+        <!-- Blog Editor Section -->
+        <section id="blog-editor" class="tab-content active">
+            <!-- ...existing code from admin_portal.html... -->
+        </section>
+
+        <!-- Blog List Section -->
+        <section id="blog-list" class="tab-content">
+            {% for blog in blogs %}
+            <div class="blog-post">
+                <h2>{{ blog.title }}</h2>
+                {% if blog.image %}
+                <img src="{{ url_for('static', filename='uploads/' ~ blog.image) }}" alt="{{ blog.title }}">
+                {% endif %}
+                <p>{{ blog.content|safe }}</p>
+                <form action="{{ url_for('admin_edit_blog') }}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="blog_id" value="{{ blog.id }}">
+                    <input type="text" name="title" value="{{ blog.title }}" required>
+                    <textarea name="content" required>{{ blog.content }}</textarea>
+                    <input type="file" name="image">
+                    <button type="submit">Update Blog</button>
+                </form>
+            </div>
+            {% endfor %}
+        </section>
+
+        <script>
+            // ...existing code from admin_portal.html...
+        </script>
+    </main>
+    <footer class="admin-footer">
+        <p>&copy; 2025 FRENCH.GTA. All rights reserved.</p>
+    </footer>
+</body>
+</html>

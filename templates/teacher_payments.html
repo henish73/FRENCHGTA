@@ -1,0 +1,30 @@
+{% include 'teacher_sidebar.html' %}
+{% include 'header.html' %}
+<main class="main-content portal-container" style="margin-top: 90px; margin-left:220px;">
+    <h1 class="page-title">Payment History</h1>
+    <section style="margin-top:32px;">
+        {% if payments and payments|length > 0 %}
+        <table style="width:100%; background:rgba(255,255,255,0.95); border-radius:14px; box-shadow:0 2px 12px rgba(44,62,80,0.07); overflow:hidden;">
+            <thead style="background:linear-gradient(90deg,#43cea2,#185a9d); color:#fff;">
+                <tr>
+                    <th style="padding:14px 18px; text-align:left;">Amount</th>
+                    <th style="padding:14px 18px; text-align:left;">Date</th>
+                    <th style="padding:14px 18px; text-align:left;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr style="border-bottom:1px solid #e0e7ef;">
+                    <td style="padding:12px 18px;">{{ payment.amount }}</td>
+                    <td style="padding:12px 18px;">{{ payment.date }}</td>
+                    <td style="padding:12px 18px;">{{ payment.status|default('Completed') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="color:#888; font-size:1.1em; margin-top:18px;">No payment history found.</div>
+        {% endif %}
+    </section>
+</main>
+{% include 'footer.html' %} 

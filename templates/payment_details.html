@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Details</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    /* Ensure the form is scrollable if it exceeds the viewport height */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    header {
+      background-color: #033357;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    main {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    input, select, button {
+      margin-top: 0.5rem;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      background-color: #033357;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00204a;
+    }
+
+    #pr-questions {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: #f1f1f1;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  {% include 'header.html' %}
+  <main>
+    <form action="/payment-details" method="POST">
+      <input type="hidden" name="item_name" value="{{ item_name }}">
+      <input type="hidden" name="amount" value="{{ amount }}">
+      <input type="hidden" name="payment_method" value="{{ payment_method }}">
+
+      <label for="full-name">Full Name:</label>
+      <input type="text" id="full-name" name="full_name" required>
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="phone">Phone Number:</label>
+      <input type="tel" id="phone" name="phone" required>
+
+      <label for="available-time">Time You Are Available On:</label>
+      <input type="text" id="available-time" name="available_time" placeholder="e.g., 10:00 AM - 12:00 PM" required>
+
+      <label for="available-date">Date You Are Available On:</label>
+      <input type="date" id="available-date" name="available_date" required>
+
+      <label for="prior-experience">Do You Have Prior Experience in Learning French?</label>
+      <select id="prior-experience" name="prior_experience" required>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+
+      <label for="level">What's Your Level?</label>
+      <select id="level" name="level" required>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+
+      <label for="purpose">What's Your Purpose for Learning French?</label>
+      <select id="purpose" name="purpose" onchange="handlePurposeChange(this)" required>
+        <option value="pr">PR</option>
+        <option value="bilingual-job">Bilingual Job</option>
+        <option value="learning-skill">Learning as a Skill</option>
+      </select>
+
+      <!-- Additional Questions for PR -->
+      <div id="pr-questions" style="display: none;">
+        <label for="status">What Status Do You Hold?</label>
+        <select id="status" name="status">
+          <option value="work-permit">Work Permit</option>
+          <option value="study-permit">Study Permit</option>
+        </select>
+
+        <label for="permit-expiry">When's It Expiring?</label>
+        <input type="date" id="permit-expiry" name="permit_expiry">
+
+        <label for="exam-planning">When Are You Planning to Appear for the Exam?</label>
+        <input type="text" id="exam-planning" name="exam_planning" placeholder="e.g., 3 months from now">
+
+        <label for="clb-goal">What's Your CLB Goal to Achieve?</label>
+        <input type="text" id="clb-goal" name="clb_goal" placeholder="e.g., CLB 7">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+    </form>
+  </main>
+  <script>
+    function handlePurposeChange(select) {
+      const prQuestions = document.getElementById('pr-questions');
+      if (select.value === 'pr') {
+        prQuestions.style.display = 'block';
+      } else {
+        prQuestions.style.display = 'none';
+      }
+    }
+  </script>
+  {% include 'footer.html' %}
+</body>
+</html>

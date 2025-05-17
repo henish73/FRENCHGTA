@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>French GTA BLOGS: Ready to serve you</title>
+    <meta name="description" content="Get Updated with new IRCC news">
+    <meta name="keywords" content="Blog, French GTA, IRCC, Canada, PR, French GTA Blogs, French Classes, Greater toronto area">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/french.gta logo.jpg') }}" type="image/x-icon">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+</head>
+
+<body>
+    {% include 'header.html' %}
+
+    <main class="main-content blog-container">
+        <section class="hero blog-hero">
+            <h1>Our Blog</h1>
+            <p>Stay updated with the latest news, tips, and insights.</p>
+        </section>
+
+        <!-- Enhanced Filter Blogs -->
+        <form method="GET" action="{{ url_for('blog') }}" class="filter-form">
+            <div class="filter-group">
+                <input type="text" name="filter_title" placeholder="Search by title..." value="{{ filter_title }}" class="filter-input">
+                <select name="filter_category" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="french" {% if filter_category == 'french' %}selected{% endif %}>French</option>
+                    <option value="canadian_immigration" {% if filter_category == 'canadian_immigration' %}selected{% endif %}>Canadian Immigration</option>
+                    <option value="general" {% if filter_category == 'general' %}selected{% endif %}>General</option>
+                    <option value="tef_specific" {% if filter_category == 'tef_specific' %}selected{% endif %}>TEF-Specific</option>
+                </select>
+                <button type="submit" class="btn filter-btn">Apply Filters</button>
+                <a href="{{ url_for('blog') }}" class="btn clear-btn">Clear Filters</a>
+            </div>
+        </form>
+
+        <!-- Blog List -->
+        <section class="blog-list">
+            <div class="blog-list">
+                {% for blog in blogs %}
+                <div class="blog-item">
+                    <h2>{{ blog.title }}</h2>
+                    <p>{{ blog.content[:200] }}...</p> <!-- Display the first 200 characters of the content -->
+                    <a href="{{ url_for('blog_post', category=blog.category, slug=blog.slug) }}" class="read-more">Read More</a> <!-- Link to the detailed blog post -->
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="ad-section">
+            <h2>Sponsored Ads</h2>
+            <div class="ad-grid">
+                <div class="ad-item">
+                    <img src="{{ url_for('static', filename='ads/ad1.jpg') }}" alt="Ad 1">
+                    <p>Ad description goes here.</p>
+                </div>
+                <div class="ad-item">
+                    <img src="{{ url_for('static', filename='ads/ad2.jpg') }}" alt="Ad 2">
+                    <p>Ad description goes here.</p>
+                </div>
+                <div class="ad-item">
+                    <img src="{{ url_for('static', filename='ads/ad3.jpg') }}" alt="Ad 3">
+                    <p>Ad description goes here.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="additional-blogs">
+            <div class="blog-item">
+                <h4>How to Prepare for the TEF Exam</h4>
+                <p>Learn the best strategies and tips to excel in the TEF exam and boost your Canadian immigration prospects.</p>
+                <a href="{{ url_for('blog_post', category='tef_specific', slug='how-to-prepare-for-tef-exam') }}" class="read-more">Read More</a>
+            </div>
+            <div class="blog-item">
+                <h4>Top Benefits of Learning French</h4>
+                <p>Discover how learning French can open doors to new opportunities in your career, education, and personal life.</p>
+                <a href="{{ url_for('blog_post', category='french', slug='top-benefits-of-learning-french') }}" class="read-more">Read More</a>
+            </div>
+            <div class="blog-item">
+                <h4>Interactive Online French Classes</h4>
+                <p>Explore how FRENCH.GTA's interactive online classes make learning French engaging and effective.</p>
+                <a href="{{ url_for('blog_post', category='general', slug='interactive-online-french-classes') }}" class="read-more">Read More</a>
+            </div>
+        </section>
+    </main>
+
+    {% include 'footer.html' %}
+
+    <div id="blogsData" data-blogs='{{ blogs|tojson|safe }}' hidden></div>
+    <script>
+        const blogsDataElement = document.getElementById('blogsData');
+        const blogs = JSON.parse(blogsDataElement.getAttribute('data-blogs')); // Parse the JSON data
+        const showMoreButton = document.getElementById('showMoreButton');
+        const blogContainer = document.getElementById('blogContainer');
+        let visibleBlogs = 5;
+
+        if (showMoreButton) {
+            showMoreButton.addEventListener('click', () => {
+                visibleBlogs += 5; // Increase the number of visible blogs by 5
+                blogContainer.innerHTML = ''; // Clear the container
+
+                // Render the updated list of blogs
+                blogs.slice(0, visibleBlogs).forEach(blog => {
+                    const blogPost = `
+                        <div class="blog-post">
+                            <h2>${blog.title}</h2>
+                            ${blog.image ? `<img src="/static/uploads/${blog.image}" alt="${blog.title}" width="200">` : ''}
+                            <p>${blog.content.slice(0, 200)}...</p>
+                            <a href="/blog_post/${blog.id}" class="btn">Read More</a>
+                        </div>
+                    `;
+                    blogContainer.insertAdjacentHTML('beforeend', blogPost);
+                });
+
+                // Hide the "Show More" button if all blogs are visible
+                if (visibleBlogs >= blogs.length) {
+                    showMoreButton.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
+
+<style>
+    /* Filter Form Styling */
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 2rem 0;
+        justify-content: center;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .filter-input {
+        padding: 0.8rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        width: 250px;
+    }
+
+    .filter-select {
+        padding: 0.8rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        width: 200px;
+    }
+
+    .filter-btn {
+        padding: 0.8rem 1.5rem;
+        background-color: #033357;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .filter-btn:hover {
+        background-color: #4CAF50;
+    }
+
+    .clear-btn {
+        padding: 0.8rem 1.5rem;
+        background-color: #f44336;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 1rem;
+    }
+
+    .clear-btn:hover {
+        background-color: #d32f2f;
+    }
+</style>

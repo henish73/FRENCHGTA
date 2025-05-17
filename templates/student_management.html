@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    {% include 'header.html' %}
+    <main class="main-content">
+        <section>
+            <h2>Student List</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Teacher</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.contact }}</td>
+                        <td>{{ student.teacher_name }}</td>
+                        <td>
+                            <form method="GET" action="{{ url_for('student_management', student_id=student.id) }}">
+                                <input type="hidden" name="student_id" value="{{ student.id }}">
+                                <button type="submit">Edit</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('delete_student', student_id=student.id) }}">
+                                <button type="submit">Delete</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('send_fee_notification', student_id=student.id) }}">
+                                <button type="submit">Send Fee Notification</button></form>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Add or Edit Student</h2>
+            <form method="POST" action="{{ url_for('student_management') }}">
+                <input type="hidden" name="student_id" value="{{ student_to_edit.id if student_to_edit else '' }}">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ student_to_edit.name if student_to_edit else '' }}" required>
+                <label for="contact">Contact:</label>
+                <input type="text" id="contact" name="contact" value="{{ student_to_edit.contact if student_to_edit else '' }}" required>
+                <label for="teacher_id">Teacher:</label>
+                <select id="teacher_id" name="teacher_id" required>
+                    {% for teacher in teachers %}
+                    <option value="{{ teacher.id }}" {% if student_to_edit and student_to_edit.teacher_id == teacher.id %}selected{% endif %}>
+                        {{ teacher.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <label for="total_classes">Total Classes:</label>
+                <input type="number" id="total_classes" name="total_classes" value="{{ student_to_edit.total_classes if student_to_edit else '' }}" required>
+                <label for="remaining_classes">Remaining Classes:</label>
+                <input type="number" id="remaining_classes" name="remaining_classes" value="{{ student_to_edit.remaining_classes if student_to_edit else '' }}" required>
+                <label for="nationality">Nationality:</label>
+                <input type="text" id="nationality" name="nationality" value="{{ student_to_edit.nationality if student_to_edit else '' }}">
+                <label for="availability">Availability:</label>
+                <input type="text" id="availability" name="availability" value="{{ student_to_edit.availability if student_to_edit else '' }}">
+                <label for="notes">Notes:</label>
+                <textarea id="notes" name="notes">{{ student_to_edit.notes if student_to_edit else '' }}</textarea>
+                <label for="user_id">User:</label>
+                <select id="user_id" name="user_id" required>
+                    {% for user in users %}
+                    <option value="{{ user.id }}" {% if student_to_edit and student_to_edit.user_id == user.id %}selected{% endif %}>
+                        {{ user.email }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Save</button>
+            </form>
+        </section>
+    </main>
+    {% include 'footer.html' %}
+</body>
+</html>

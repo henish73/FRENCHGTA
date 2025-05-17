@@ -1,0 +1,24 @@
+<form method="POST" action="{{ url_for('admin_edit_blog') }}" enctype="multipart/form-data">
+    <input type="hidden" name="blog_id" value="{{ blog.id }}">
+    <label for="category">Category:</label>
+    <select id="category" name="category" required>
+        <option value="vocabulary" {% if blog.category == 'vocabulary' %}selected{% endif %}>Vocabulary</option>
+        <option value="immigration" {% if blog.category == 'immigration' %}selected{% endif %}>Immigration</option>
+        <option value="classes" {% if blog.category == 'classes' %}selected{% endif %}>Classes</option>
+        <option value="general" {% if blog.category == 'general' %}selected{% endif %}>General</option>
+        <option value="food" {% if blog.category == 'food' %}selected{% endif %}>Food</option>
+        <option value="culture" {% if blog.category == 'culture' %}selected{% endif %}>Culture</option>
+        <option value="basics" {% if blog.category == 'basics' %}selected{% endif %}>Basics</option>
+        <option value="learning" {% if blog.category == 'learning' %}selected{% endif %}>Learning</option>
+        <option value="ircc" {% if blog.category == 'ircc' %}selected{% endif %}>IRCC</option>
+        <option value="tef" {% if blog.category == 'tef' %}selected{% endif %}>TEF</option>
+        <option value="dalf" {% if blog.category == 'dalf' %}selected{% endif %}>DALF</option>
+    </select>
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" value="{{ blog.title }}" required>
+    <label for="content">Content:</label>
+    <textarea id="content" name="content" required>{{ blog.content }}</textarea>
+    <label for="image">Image:</label>
+    <input type="file" id="image" name="image">
+    <button type="submit">Save Changes</button>
+</form>

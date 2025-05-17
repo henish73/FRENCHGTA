@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    {% include 'header.html' %}
+    <main class="main-content">
+        <section>
+            <h2>Manage Queries</h2>
+            <form method="POST" action="{{ url_for('query_management') }}" class="form">
+                <input type="hidden" name="query_id" value="{{ query_to_edit.id if query_to_edit else '' }}">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" value="{{ query_to_edit.name if query_to_edit else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact">Contact:</label>
+                    <input type="text" id="contact" name="contact" value="{{ query_to_edit.contact if query_to_edit else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location" value="{{ query_to_edit.location if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="availability">Availability:</label>
+                    <input type="text" id="availability" name="availability" value="{{ query_to_edit.availability if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="nationality">Nationality:</label>
+                    <input type="text" id="nationality" name="nationality" value="{{ query_to_edit.nationality if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="pitched_for">Pitched For:</label>
+                    <input type="text" id="pitched_for" name="pitched_for" value="{{ query_to_edit.pitched_for if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="type_of_source">Type of Source:</label>
+                    <select id="type_of_source" name="type_of_source" required>
+                        <option value="Facebook ADS" {% if query_to_edit and query_to_edit.type_of_source == 'Facebook ADS' %}selected{% endif %}>Facebook ADS</option>
+                        <option value="Google ADS" {% if query_to_edit and query_to_edit.type_of_source == 'Google ADS' %}selected{% endif %}>Google ADS</option>
+                        <option value="Random" {% if query_to_edit and query_to_edit.type_of_source == 'Random' %}selected{% endif %}>Random</option>
+                        <option value="Referral" {% if query_to_edit and query_to_edit.type_of_source == 'Referral' %}selected{% endif %}>Referral</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="imm_status">IMM Status:</label>
+                    <input type="text" id="imm_status" name="imm_status" value="{{ query_to_edit.imm_status if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="work_permit">Work Permit:</label>
+                    <input type="text" id="work_permit" name="work_permit" value="{{ query_to_edit.work_permit if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes:</label>
+                    <textarea id="notes" name="notes">{{ query_to_edit.notes if query_to_edit else '' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="demo_date">Demo Date:</label>
+                    <input type="date" id="demo_date" name="demo_date" value="{{ query_to_edit.demo_date if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="demo_instructor">Demo Instructor:</label>
+                    <input type="text" id="demo_instructor" name="demo_instructor" value="{{ query_to_edit.demo_instructor if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="demo_instructor_2">Demo Instructor 2:</label>
+                    <input type="text" id="demo_instructor_2" name="demo_instructor_2" value="{{ query_to_edit.demo_instructor_2 if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status" name="status" required>
+                        <option value="Enrolled" {% if query_to_edit and query_to_edit.status == 'Enrolled' %}selected{% endif %}>Enrolled</option>
+                        <option value="In Progress" {% if query_to_edit and query_to_edit.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                        <option value="Dead" {% if query_to_edit and query_to_edit.status == 'Dead' %}selected{% endif %}>Dead</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="instructor_id">Instructor ID:</label>
+                    <input type="text" id="instructor_id" name="instructor_id" value="{{ query_to_edit.instructor_id if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="instructor_assigned">Instructor Assigned:</label>
+                    <input type="text" id="instructor_assigned" name="instructor_assigned" value="{{ query_to_edit.instructor_assigned if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="time_of_lead">Time of Lead:</label>
+                    <input type="datetime-local" id="time_of_lead" name="time_of_lead" value="{{ query_to_edit.time_of_lead if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="qualification">Qualification:</label>
+                    <input type="text" id="qualification" name="qualification" value="{{ query_to_edit.qualification if query_to_edit else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="current_level">Current Level:</label>
+                    <input type="text" id="current_level" name="current_level" value="{{ query_to_edit.current_level if query_to_edit else '' }}">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn">Save Query</button>
+                    <button 
+                        type="submit" 
+                        formaction="{{ url_for('convert_query_to_student', query_id=query_to_edit.id) if query_to_edit else '#' }}" 
+                        class="btn btn-secondary">
+                        Convert to Student
+                    </button>
+                </div>
+            </form>
+        </section>
+        <section>
+            <h2>Existing Queries</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Location</th>
+                        <th>Availability</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for query in queries %}
+                    <tr>
+                        <td>{{ query.id }}</td>
+                        <td>{{ query.name }}</td>
+                        <td>{{ query.contact }}</td>
+                        <td>{{ query.location }}</td>
+                        <td>{{ query.availability }}</td>
+                        <td>
+                            <a href="{{ url_for('query_management', edit_query_id=query.id) }}">Edit</a>
+                            <a href="{{ url_for('query_management', delete_query_id=query.id) }}" onclick="return confirm('Are you sure you want to delete this query?');">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+    {% include 'footer.html' %}
+</body>
+</html>

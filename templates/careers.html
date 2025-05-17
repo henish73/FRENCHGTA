@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Careers at FRENCH.GTA | Join Our Team</title>
+    <meta name="description" content="Explore career opportunities at FRENCH.GTA and become part of our passionate team dedicated to French language education.">
+    <meta name="keywords" content="careers, FRENCH.GTA, jobs, French teaching jobs, Toronto, GTA, employment, join our team">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/french.gta logo.jpg') }}" type="image/x-icon">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <main class="main-content">
+        <section>
+            <h1>Careers at FRENCH.GTA</h1>
+            <p>Join our team of passionate individuals dedicated to providing exceptional French language education in the Greater Toronto Area. We're always looking for talented and enthusiastic people to join us!</p>
+
+            <h2>Current Openings</h2>
+            <p>please email us at <a href="mailto:frenchgta.ca@gmail.com">frenchgta.ca@gmail.com</a></p>
+
+            <p>We are always interested in hearing from qualified French instructors and other professionals who share our passion for language education.  If you don't see a specific opening that matches your skills, feel free to send us your resume and cover letter for future consideration.</p>
+
+            <h2>Why Work at FRENCH.GTA?</h2>
+            <ul>
+                <li>Be part of a supportive and collaborative team.</li>
+                <li>Make a positive impact on students' lives.</li>
+                <li>Work in a dynamic and rewarding environment.</li>
+                <li>Enjoy opportunities for professional growth and development.</li>
+                <li>Competitive compensation and benefits.</li>
+            </ul>
+
+            <h2>How to Apply</h2>
+             <p>Please send your resume and cover letter to <a href="mailto:frenchgta.ca@gmail.com">frenchgta.ca@gmail.com</a>.  In your cover letter, please indicate the type of position you are interested in and why you believe you would be a good fit for FRENCH.GTA.</p>
+        </section>
+    </main>
+    {% include 'footer.html' %}
+</body>
+</html>

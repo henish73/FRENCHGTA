@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo Registration</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  {% include 'header.html' %}
+  <main class="demo-registration-page">
+    <section class="demo-form-section">
+      <h2>Register for a Demo Class</h2>
+      <p>Fill out the form below to book your demo class for just <strong>$7</strong>.</p>
+      <form action="/process-demo-registration" method="POST" class="demo-form">
+        <label for="full-name">Full Name:</label>
+        <input type="text" id="full-name" name="full_name" placeholder="Enter your full name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+
+        <label for="available-time">Preferred Time:</label>
+        <input type="text" id="available-time" name="available_time" placeholder="e.g., 10:00 AM - 12:00 PM" required>
+
+        <label for="available-date">Preferred Date:</label>
+        <input type="date" id="available-date" name="available_date" required>
+
+        <label for="prior_experience">Do you have prior experience?</label>
+        <select id="prior_experience" name="prior_experience" required>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+
+        <button type="submit" class="demo-button">Submit Registration</button>
+      </form>
+    </section>
+
+    <section class="payment-section">
+      <h2>Proceed to Payment</h2>
+      <p>After submitting the form, choose your preferred payment method below:</p>
+      <div class="payment-options">
+        <a href="https://www.paypal.com" class="btn-paypal">
+          <img src="{{ url_for('static', filename='img/paypal-logo.png') }}" alt="PayPal Logo"> Pay with PayPal
+        </a>
+        <a href="mailto:frenchgta.ca@gmail.com" class="btn-interac">
+          <img src="{{ url_for('static', filename='img/interac-logo.png') }}" alt="Interac Logo"> Pay with Interac
+        </a>
+      </div>
+    </section>
+  </main>
+  {% include 'footer.html' %}
+</body>
+</html>

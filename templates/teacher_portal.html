@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <style>
+        .chat-container {
+            width: 60%;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            padding: 10px;
+        }
+        .chat-box {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .message.teacher {
+            text-align: right;
+            color: blue;
+        }
+        .message.student {
+            text-align: left;
+            color: green;
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: #999;
+        }
+        .input-container {
+            display: flex;
+        }
+        .input-container textarea {
+            flex: 1;
+            resize: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .input-container button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .circle-timer-container { display: flex; align-items: center; gap: 32px; }
+        .circle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            box-shadow: 0 4px 24px 0 rgba(44,62,80,0.18), 0 0 0 6px rgba(67,206,162,0.08);
+            margin: 0 18px;
+            cursor: pointer;
+            transition: box-shadow 0.2s, background 0.2s, transform 0.15s;
+            position: relative;
+            z-index: 2;
+            outline: none;
+        }
+        .circle-btn.punch-in {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            box-shadow: 0 0 16px 2px #43cea2, 0 4px 24px 0 rgba(44,62,80,0.18);
+        }
+        .circle-btn.punch-out {
+            background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%);
+            box-shadow: 0 0 16px 2px #ff512f, 0 4px 24px 0 rgba(44,62,80,0.18);
+        }
+        .circle-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 0 24px 4px #43cea2, 0 2px 8px rgba(44,62,80,0.10);
+        }
+        .circle-btn i {
+            font-size: 2.2em;
+            margin-right: 0;
+        }
+        .circle-btn span {
+            display: none;
+        }
+        .circle-timer {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .timer-center {
+            position: absolute;
+            left: 0; right: 0; top: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        #progress-circle { transition: stroke-dashoffset 0.5s linear; }
+        /* Modern Chat Styles */
+        .chat-container-modern { background: rgba(255,255,255,0.95); border-radius: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 18px; max-width: 700px; margin: 0 auto 24px auto; position:relative; }
+        .chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .chat-actions { display: flex; gap: 12px; }
+        .chat-box-modern { height: 260px; overflow-y: auto; background: #f7f8fa; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+        .input-container-modern { display: flex; gap: 8px; align-items: flex-end; }
+        .input-container-modern textarea { flex: 1; resize: none; padding: 10px; border: 1px solid #ccc; border-radius: 8px; min-height: 38px; max-height: 90px; }
+        .input-container-modern button { background: #0a7cff; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; }
+        .chat-message { display: flex; align-items: flex-end; margin-bottom: 10px; }
+        .chat-message.teacher { flex-direction: row-reverse; }
+        .chat-avatar { width: 36px; height: 36px; border-radius: 50%; background: #e0e7ef; margin: 0 8px; }
+        .chat-bubble { background: #e0e7ef; border-radius: 16px; padding: 10px 16px; max-width: 60%; font-size: 1em; position: relative; word-break: break-word; }
+        .chat-message.teacher .chat-bubble { background: #0a7cff; color: #fff; }
+        .chat-attachment { display: block; margin-top: 6px; font-size: 0.95em; color: #0a7cff; }
+        .chat-bubble img { max-width: 180px; border-radius: 10px; margin-top: 6px; }
+        .chat-bubble audio, .chat-bubble video { width: 180px; margin-top: 6px; }
+        .file-upload-label { cursor: pointer; color: #0a7cff; }
+        #emoji-picker { background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 8px; max-width: 220px; }
+        #voice-recording-ui { background: #f7f8fa; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 12px; }
+        .chat-container-distinct {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            border-radius: 32px;
+            box-shadow: 0 8px 32px rgba(44,62,80,0.25), 0 1.5px 8px rgba(0,0,0,0.10);
+            padding: 24px 24px 18px 24px;
+            max-width: 480px;
+            margin: 0 auto 32px auto;
+            position: relative;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+        .chat-header-distinct {
+            background: transparent;
+            border-radius: 24px 24px 0 0;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-actions .chat-action-btn {
+            background: rgba(255,255,255,0.12);
+            border: none;
+            color: #43cea2;
+            font-size: 1.3em;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            margin-right: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+            box-shadow: 0 1px 4px rgba(44,62,80,0.10);
+            cursor: pointer;
+        }
+        .chat-actions .chat-action-btn:last-child { margin-right: 0; }
+        .chat-action-btn:hover, .chat-send-btn:hover {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            color: #fff;
+        }
+        .chat-send-btn {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 6px;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .chat-box-distinct {
+            height: 260px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.10);
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+        }
+        .input-container-distinct {
+            background: rgba(255,255,255,0.12);
+            border-radius: 16px;
+            padding: 8px 8px 8px 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: flex-end;
+        }
+        .input-container-distinct textarea {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            border: none;
+            outline: none;
+            flex: 1;
+            min-height: 38px;
+            max-height: 90px;
+            resize: none;
+            margin: 0 6px;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .input-container-distinct button {
+            margin-bottom: 0;
+        }
+        .chat-message {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+        .chat-message.teacher { flex-direction: row-reverse; }
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #232526;
+            margin: 0 8px;
+            border: 2px solid #43cea2;
+        }
+        .chat-bubble {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            color: #fff;
+            border-radius: 18px;
+            padding: 12px 18px;
+            max-width: 70%;
+            font-size: 1em;
+            position: relative;
+            word-break: break-word;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+        }
+        .chat-message.teacher .chat-bubble {
+            background: linear-gradient(135deg, #ffaf7b 0%, #d76d77 100%);
+            color: #fff;
+        }
+        .chat-attachment { display: block; margin-top: 6px; font-size: 0.95em; color: #43cea2; }
+        .chat-bubble img { max-width: 180px; border-radius: 10px; margin-top: 6px; }
+        .chat-bubble audio, .chat-bubble video { width: 180px; margin-top: 6px; }
+        #emoji-picker { background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 8px; max-width: 220px; }
+        #voice-recording-ui { background: #232526; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 12px; color: #fff; }
+        ::placeholder { color: #e0e7ef; opacity: 1; }
+    </style>
+</head>
+<body>
+    {% include 'teacher_sidebar.html' %}
+    {% include 'header.html' %}
+    <main class="main-content portal-container" style="margin-top: 90px; margin-left:220px;">
+        <h1 class="page-title">Welcome to the Teacher Portal</h1>
+        <div class="dashboard-welcome" style="margin:32px 0; font-size:1.3em; color:#232526;">Welcome, {{ teacher_name }}! Here you can manage your classes, students, schedule, and more.</div>
+        <!-- Dashboard summary cards -->
+        <div class="dashboard-cards" style="display:flex; gap:32px; flex-wrap:wrap; margin-bottom:32px;">
+            <div style="flex:1 1 220px; min-width:220px; background:linear-gradient(135deg,#43cea2 0%,#185a9d 100%); color:#fff; border-radius:18px; box-shadow:0 2px 12px rgba(44,62,80,0.10); padding:28px 32px; display:flex; flex-direction:column; align-items:flex-start;">
+                <div style="font-size:2em; font-weight:700; margin-bottom:8px;">{{ upcoming_count|default(0) }}</div>
+                <div style="font-size:1.1em;">Upcoming Classes</div>
+            </div>
+            <div style="flex:1 1 220px; min-width:220px; background:linear-gradient(135deg,#232526 0%,#414345 100%); color:#fff; border-radius:18px; box-shadow:0 2px 12px rgba(44,62,80,0.10); padding:28px 32px; display:flex; flex-direction:column; align-items:flex-start;">
+                <div style="font-size:2em; font-weight:700; margin-bottom:8px;">{{ student_count|default(0) }}</div>
+                <div style="font-size:1.1em;">Total Students</div>
+            </div>
+            <div style="flex:1 1 220px; min-width:220px; background:linear-gradient(135deg,#ffaf7b 0%,#d76d77 100%); color:#fff; border-radius:18px; box-shadow:0 2px 12px rgba(44,62,80,0.10); padding:28px 32px; display:flex; flex-direction:column; align-items:flex-start;">
+                <div style="font-size:2em; font-weight:700; margin-bottom:8px;">₹{{ payments_month|default(0) }}</div>
+                <div style="font-size:1.1em;">Payments This Month</div>
+            </div>
+        </div>
+        <!-- Add dashboard summary cards, stats, quick links, etc. here. -->
+    </main>
+    {% include 'footer.html' %}
+</body>
+</html>
+``` 

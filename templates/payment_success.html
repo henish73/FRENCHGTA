@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  {% include 'header.html' %}
+  <main>
+    <p>Thank you, {{ full_name }}! Your payment for the <strong>{{ item_name }}</strong> plan of <strong>${{ amount }}</strong> has been received.</p>
+    <p>We will contact you shortly to schedule your class.</p>
+    <a href="{{ url_for('services') }}" class="btn btn-primary">Return to Services</a>
+  </main>
+  {% include 'footer.html' %}
+</body>
+</html>

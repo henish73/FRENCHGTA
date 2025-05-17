@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    {% include 'header.html' %}
+    <main class="main-content portal-container">
+        <h1 class="page-title">Admin Portal</h1>
+
+        <!-- Manage Users Section -->
+        <section>
+            <h2>Manage Users</h2>
+
+            <!-- Unified User Form -->
+            <form method="POST" action="{{ url_for('manage_users') }}">
+                <label for="user_id">User ID:</label>
+                <input type="text" id="user_id" name="user_id" value="{{ edit_user.user_id if edit_user else '' }}" readonly>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ edit_user.email if edit_user else '' }}" required>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ edit_user.name if edit_user else '' }}" required>
+                <label for="password">Password:</label>
+                <input type="text" id="password" name="password" value="{{ edit_user.password if edit_user else '' }}" placeholder="Enter password" required>
+                <label for="role">Role:</label>
+                <select id="role" name="role" required>
+                    <option value="admin" {% if edit_user and edit_user.role == 'admin' %}selected{% endif %}>Admin</option>
+                    <option value="teacher" {% if edit_user and edit_user.role == 'teacher' %}selected{% endif %}>Teacher</option>
+                    <option value="student" {% if edit_user and edit_user.role == 'student' %}selected{% endif %}>Student</option>
+                </select>
+                <label for="custom_number">Custom Number:</label>
+                <input type="number" id="custom_number" name="custom_number" value="{{ edit_user.custom_number if edit_user else '' }}" min="1" max="999" required>
+                <button type="submit">{{ 'Save Changes' if edit_user else 'Create User' }}</button>
+            </form>
+
+            <h3>Existing Users</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Custom Number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.user_id }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>{{ user.custom_number }}</td>
+                        <td>
+                            <a href="{{ url_for('edit_user_form', user_id=user.user_id) }}">Edit</a>
+                            <form method="POST" action="{{ url_for('delete_user', user_id=user.user_id) }}" style="display:inline;">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Admin Links Section -->
+        <section class="admin-links">
+            <a href="{{ url_for('blog_management') }}" class="btn primary-btn">Blog Management</a>
+            <a href="{{ url_for('financial_management') }}" class="btn primary-btn">Financial Management</a>
+            <a href="{{ url_for('student_management') }}" class="btn primary-btn">Student Management</a>
+            <a href="{{ url_for('teacher_management') }}" class="btn primary-btn">Teacher Management</a>
+            <a href="{{ url_for('query_management') }}" class="btn primary-btn">Query Management</a>
+        </section>
+
+        <!-- Blog Editor Section -->
+        <section id="blog-editor" class="tab-content active">
+            <h2 class="section-title">Blog Editor</h2>
+            <form id="blogForm" method="POST" action="{{ url_for('admin_add_blog') }}" enctype="multipart/form-data" class="form blog-form">
+                <input type="hidden" id="blogId" name="blog_id" value="">
+                <h3 id="editorTitle" class="editor-title">Add New Blog</h3>
+                <div class="form-group">
+                    <label for="title">Blog Title:</label>
+                    <input type="text" id="title" name="title" placeholder="Enter blog title" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">Content:</label>
+                    <div id="editor-toolbar" class="toolbar">
+                        <!-- Rich Text Editing Tools -->
+                        <button type="button" data-command="undo" title="Undo"><i class="fas fa-undo"></i></button>
+                        <button type="button" data-command="redo" title="Redo"><i class="fas fa-redo"></i></button>
+                        <button type="button" data-command="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                        <button type="button" data-command="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                        <button type="button" data-command="underline" title="Underline"><i class="fas fa-underline"></i></button>
+                        <button type="button" data-command="strikeThrough" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
+                        <button type="button" data-command="justifyLeft" title="Align Left"><i class="fas fa-align-left"></i></button>
+                        <button type="button" data-command="justifyCenter" title="Align Center"><i class="fas fa-align-center"></i></button>
+                        <button type="button" data-command="justifyRight" title="Align Right"><i class="fas fa-align-right"></i></button>
+                        <button type="button" data-command="justifyFull" title="Justify"><i class="fas fa-align-justify"></i></button>
+                        <button type="button" data-command="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                        <button type="button" data-command="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                        <button type="button" data-command="insertHorizontalRule" title="Insert Horizontal Line"><i class="fas fa-minus"></i></button>
+                        <button type="button" data-command="createLink" title="Insert Link"><i class="fas fa-link"></i></button>
+                        <button type="button" data-command="unlink" title="Remove Link"><i class="fas fa-unlink"></i></button>
+                        <button type="button" data-command="fontSize" title="Font Size"><i class="fas fa-text-height"></i></button>
+                        <button type="button" data-command="foreColor" title="Font Color"><i class="fas fa-palette"></i></button>
+                        <button type="button" data-command="fontName" title="Font Family"><i class="fas fa-font"></i></button>
+                        <button type="button" id="uploadImage" title="Upload Image"><i class="fas fa-upload"></i></button>
+                        <button type="button" id="resizeImage" title="Resize Image"><i class="fas fa-expand"></i></button>
+                        <button type="button" id="rotateImage" title="Rotate Image"><i class="fas fa-sync-alt"></i></button>
+                        <button type="button" id="mirrorImage" title="Mirror Image"><i class="fas fa-arrows-alt-h"></i></button>
+                        <button type="button" data-command="insertEmoji" title="Insert Emoji"><i class="fas fa-smile"></i></button>
+                    </div>
+                    <div id="editor" contenteditable="true" class="editor"></div>
+                    <textarea id="content" name="content" hidden></textarea>
+                </div>
+                <label for="category">Category:</label>
+                <select name="filter_category" class="filter-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category }}" {% if filter_category == category %}selected{% endif %}>{{ category.replace('_', ' ').capitalize() }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-group">
+                    <label for="image">Upload Images:</label>
+                    <input type="file" id="image" name="images[]" accept="image/*" multiple>
+                </div>
+                <button type="submit" class="btn primary-btn">Save Blog</button>
+            </form>
+        </section>
+
+        <!-- Blog Management Section -->
+        <section id="blog-management" class="tab-content">
+            <h2>Manage Blogs</h2>
+
+            <!-- Blog List Section -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Content</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for blog in blogs %}
+                    <tr>
+                        <td>{{ blog.id }}</td>
+                        <td>{{ blog.title }}</td>
+                        <td>{{ blog.content[:100] }}...</td> <!-- Display the first 100 characters -->
+                        <td>
+                            <button type="button" class="btn btn-primary edit-blog-btn" 
+                                data-id="{{ blog.id }}" 
+                                data-title="{{ blog.title }}" 
+                                data-content="{{ blog.content }}">
+                                Edit
+                            </button>
+                            <form method="POST" action="{{ url_for('admin_delete_blog', blog_id=blog.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Class Reports Section -->
+        <section>
+            <h2>Class Reports</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class Name</th>
+                        <th>Teacher</th>
+                        <th>Date (EST)</th>
+                        <th>Time (EST)</th>
+                        <th>Students</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in class_reports %}
+                    <tr>
+                        <td>{{ report.class_name }}</td>
+                        <td>{{ report.teacher_name }}</td>
+                        <td>{{ report.class_date }}</td>
+                        <td>{{ report.class_time }}</td>
+                        <td>
+                            {% for student in report.students %}
+                            {{ student.name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ report.status }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('approve_class_report', report_id=report.id) }}">
+                                <button type="submit" class="btn">Approve</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <script>
+            // Add event listeners to all "Edit" buttons
+            document.querySelectorAll('.edit-blog-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    // Retrieve blog data from data-* attributes
+                    const blogId = button.getAttribute('data-id');
+                    const blogTitle = button.getAttribute('data-title');
+                    const blogContent = button.getAttribute('data-content');
+
+                    // Populate the editor form with the blog's data
+                    document.getElementById('blogId').value = blogId;
+                    document.getElementById('title').value = blogTitle;
+                    document.getElementById('editor').innerHTML = blogContent;
+
+                    // Update the editor title to indicate editing mode
+                    document.getElementById('editorTitle').textContent = 'Edit Blog';
+
+                    // Scroll to the editor section
+                    document.getElementById('blog-editor').scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        </script>
+
+        
+
+        
+
+        <script>
+            const blogForm = document.getElementById('blogForm');
+            const blogIdInput = document.getElementById('blogId');
+            const blogTitleInput = document.getElementById('title');
+            const editor = document.getElementById('editor');
+            const contentInput = document.getElementById('content');
+            const editorTitle = document.getElementById('editorTitle');
+            const editBlogButtons = document.querySelectorAll('.edit-blog');
+            const uploadImageButton = document.getElementById('uploadImage');
+            const imageInput = document.getElementById('image');
+            const resizeImageButton = document.getElementById('resizeImage');
+            const rotateImageButton = document.getElementById('rotateImage');
+            const mirrorImageButton = document.getElementById('mirrorImage');
+            let selectedImage = null; // Track the currently selected image
+
+            // Debugging: Ensure elements are correctly selected
+            console.log('Blog Form:', blogForm);
+            console.log('Edit Blog Buttons:', editBlogButtons);
+
+            // Handle blog editing
+            editBlogButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault(); // Prevent default button behavior
+
+                    const blogId = button.getAttribute('data-id');
+                    const blogTitle = button.getAttribute('data-title');
+                    const blogContent = button.getAttribute('data-content');
+
+                    // Populate the blog editor form with the selected blog's data
+                    blogIdInput.value = blogId;
+                    blogTitleInput.value = blogTitle;
+                    editor.innerHTML = blogContent;
+                    contentInput.value = blogContent;
+
+                    // Update the editor title to indicate editing mode
+                    editorTitle.textContent = 'Edit Blog';
+                });
+            });
+
+            // Sync editor content with the hidden textarea
+            editor.addEventListener('input', () => {
+                contentInput.value = editor.innerHTML;
+            });
+
+            // Ensure content is synced before form submission
+            blogForm.addEventListener('submit', (event) => {
+                // Sync the editor content with the hidden textarea
+                contentInput.value = editor.innerHTML;
+
+                // Debugging: Log the content being submitted
+                console.log('Submitting content:', contentInput.value);
+            });
+
+            // Handle "Upload Image" button in the toolbar
+            uploadImageButton.addEventListener('click', () => {
+                imageInput.click(); // Trigger the file input dialog
+            });
+
+            // Handle multiple image uploads
+            imageInput.addEventListener('change', () => {
+                const files = Array.from(imageInput.files); // Get all selected files
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.alt = 'Uploaded Image'; // Add alt text for accessibility
+                        img.style.maxWidth = '200px'; // Default width
+                        img.style.height = 'auto'; // Maintain aspect ratio
+                        img.style.margin = '10px';
+                        img.style.cursor = 'pointer'; // Allow selection
+                        img.style.display = 'inline-block';
+                        img.style.position = 'relative'; // Required for drag handles
+                        img.addEventListener('click', () => selectImage(img));
+                        addResizeHandles(img); // Add resize handles to the image
+
+                        // Insert the image at the current cursor position or append to the end
+                        const selection = window.getSelection();
+                        const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+                        if (range) {
+                            range.deleteContents(); // Remove any selected content
+                            range.insertNode(img); // Insert the image at the cursor position
+                            range.collapse(false); // Move the cursor after the inserted image
+                        } else {
+                            editor.appendChild(img); // Append the image to the end if no cursor position
+                        }
+
+                        // Sync the editor content with the hidden textarea
+                        contentInput.value = editor.innerHTML;
+                    };
+                    reader.readAsDataURL(file); // Read the file as a data URL
+                });
+
+                // Clear the file input after processing
+                imageInput.value = '';
+            });
+
+            // Select an image for editing
+            function selectImage(img) {
+                if (selectedImage) {
+                    selectedImage.style.border = ''; // Deselect the previously selected image
+                }
+                selectedImage = img;
+                selectedImage.style.border = '2px solid blue'; // Highlight the selected image
+            }
+
+            // Add resize handles to an image
+            function addResizeHandles(img) {
+                const resizeHandle = document.createElement('div');
+                resizeHandle.style.width = '10px';
+                resizeHandle.style.height = '10px';
+                resizeHandle.style.background = 'blue';
+                resizeHandle.style.position = 'absolute';
+                resizeHandle.style.right = '0';
+                resizeHandle.style.bottom = '0';
+                resizeHandle.style.cursor = 'nwse-resize';
+                resizeHandle.addEventListener('mousedown', (e) => startResizing(e, img));
+                img.appendChild(resizeHandle);
+            }
+
+            // Start resizing the image
+            function startResizing(e, img) {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const startWidth = img.offsetWidth;
+                const startHeight = img.offsetHeight;
+
+                const minWidth = 50; // Minimum width in pixels
+                const minHeight = 50; // Minimum height in pixels
+                const maxWidth = 5000; // Increased maximum width in pixels
+                const maxHeight = 5000; // Increased maximum height in pixels
+
+                // Remove any max-width or max-height constraints dynamically
+                img.style.maxWidth = 'none';
+                img.style.maxHeight = 'none';
+
+                // Extract the current scale from the transform property (if any)
+                const transform = window.getComputedStyle(img).transform;
+                let scaleX = 1, scaleY = 1;
+                if (transform && transform !== 'none') {
+                    const match = transform.match(/matrix\(([^,]+),[^,]+,[^,]+,([^,]+),[^,]+,[^,]+\)/);
+                    if (match) {
+                        scaleX = parseFloat(match[1]);
+                        scaleY = parseFloat(match[2]);
+                    }
+                }
+
+                function resize(e) {
+                    let newWidth = startWidth + (e.clientX - startX);
+                    let newHeight = startHeight + (e.clientY - startY);
+
+                    // Enforce minimum and maximum dimensions
+                    newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+                    newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+
+                    // Adjust for any scaling applied via transform
+                    img.style.width = `${newWidth / scaleX}px`;
+                    img.style.height = `${newHeight / scaleY}px`;
+                }
+
+                function stopResizing() {
+                    document.removeEventListener('mousemove', resize);
+                    document.removeEventListener('mouseup', stopResizing);
+                }
+
+                document.addEventListener('mousemove', resize);
+                document.addEventListener('mouseup', stopResizing);
+            }
+
+            // Handle image resizing
+            resizeImageButton.addEventListener('click', () => {
+                if (selectedImage) {
+                    const width = prompt('Enter new width (px):', selectedImage.style.width.replace('px', ''));
+                    const height = prompt('Enter new height (px):', selectedImage.style.height.replace('px', ''));
+
+                    if (width !== null && height !== null) {
+                        const newWidth = Math.max(50, Math.min(5000, parseInt(width, 10))); // Increased max width
+                        const newHeight = Math.max(50, Math.min(5000, parseInt(height, 10))); // Increased max height
+
+                        // Remove any max-width or max-height constraints dynamically
+                        selectedImage.style.maxWidth = 'none';
+                        selectedImage.style.maxHeight = 'none';
+
+                        selectedImage.style.width = `${newWidth}px`;
+                        selectedImage.style.height = `${newHeight}px`;
+                    }
+                } else {
+                    alert('Please select an image to resize.');
+                }
+            });
+
+            // Handle image rotation
+            rotateImageButton.addEventListener('click', () => {
+                if (selectedImage) {
+                    const currentRotation = selectedImage.style.transform.match(/rotate\((\d+)deg\)/);
+                    const currentAngle = currentRotation ? parseInt(currentRotation[1]) : 0;
+                    const newAngle = (currentAngle + 90) % 360; // Rotate by 90 degrees
+                    selectedImage.style.transform = `rotate(${newAngle}deg)`;
+                } else {
+                    alert('Please select an image to rotate.');
+                }
+            });
+
+            // Handle image mirroring
+            mirrorImageButton.addEventListener('click', () => {
+                if (selectedImage) {
+                    const currentTransform = selectedImage.style.transform;
+                    const isMirrored = currentTransform.includes('scaleX(-1)');
+                    selectedImage.style.transform = isMirrored
+                        ? currentTransform.replace('scaleX(-1)', '')
+                        : `${currentTransform} scaleX(-1)`;
+                } else {
+                    alert('Please select an image to mirror.');
+                }
+            });
+
+            // Allow writing around freely positioned images
+            editor.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'IMG') {
+                    if (selectedImage) {
+                        selectedImage.style.border = ''; // Deselect the image
+                        selectedImage = null;
+                    }
+                }
+            });
+
+            // Handle toolbar button commands
+            const toolbarButtons = document.querySelectorAll('#editor-toolbar button');
+            toolbarButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const command = button.getAttribute('data-command');
+                    if (command) {
+                        if (command === 'createLink') {
+                            const url = prompt('Enter the URL:');
+                            if (url) {
+                                document.execCommand(command, false, url);
+                            }
+                        } else if (command === 'fontSize') {
+                            const size = prompt('Enter font size (1-7):');
+                            if (size) {
+                                document.execCommand(command, false, size);
+                            }
+                        } else if (command === 'foreColor') {
+                            const color = prompt('Enter a color (name or hex):');
+                            if (color) {
+                                document.execCommand(command, false, color);
+                            }
+                        } else if (command === 'fontName') {
+                            const font = prompt('Enter font name:');
+                            if (font) {
+                                document.execCommand(command, false, font);
+                            }
+                        } else {
+                            document.execCommand(command, false, null);
+                        }
+                    }
+                });
+            });
+        </script>
+    </main>
+    {% include 'footer.html' %}
+</body>
+</html>
+``` 

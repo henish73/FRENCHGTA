@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online French Courses | FRENCH.GTA</title>
+  <meta name="description" content="Explore expert-led French language programs for TEF, career, and immigration. Learn online with flexible schedules and real results.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/french.gta logo.jpg') }}" type="image/x-icon">
+</head>
+
+<body>
+  {% include 'header.html' %}
+
+  <main class="main-content">
+    <section class="intro">
+      <h1>Master French with Online Live Classes</h1>
+      <p>Our structured French programs are designed for TEF Canada prep, career advancement, and permanent residency goals. Learn from certified instructors in small groups or one-on-one sessions.</p>
+      <a href="#plans" class="cta-button">View Pricing & Schedule</a>
+    </section>
+
+    <section class="course-overview">
+      <h2>Course Structure by Level</h2>
+      <div class="course-grid">
+        <div class="course-card">
+          <h3>Beginner French (A1–A2)</h3>
+          <p>Learn foundational grammar, sentence structures, and basic conversation. Perfect for absolute beginners.</p>
+          <ul>
+            <li><strong>Course Duration:</strong> 3–4 months (with 5 classes/week)</li>
+            <li><strong>Class Time:</strong> 60 minutes per class</li>
+            <li><strong>Learning Goals:</strong> Introductions, daily routine, directions, food, numbers</li>
+          </ul>
+        </div>
+        <div class="course-card">
+          <h3>Intermediate French (B1–B2)</h3>
+          <p>Build conversational fluency. Master tenses, opinions, and professional dialogues.</p>
+          <ul>
+            <li><strong>Course Duration:</strong> 4–5 months (with 5 classes/week)</li>
+            <li><strong>Class Time:</strong> 60 minutes per class</li>
+            <li><strong>Learning Goals:</strong> Express ideas clearly, discuss topics like work, travel, health</li>
+          </ul>
+        </div>
+        <div class="course-card">
+          <h3>Advanced French (C1–C2)</h3>
+          <p>Become near-native in French. Understand idioms, culture, formal writing, and fast native speech.</p>
+          <ul>
+            <li><strong>Course Duration:</strong> 5–6 months (with 5 classes/week)</li>
+            <li><strong>Class Time:</strong> 60 minutes per class</li>
+            <li><strong>Learning Goals:</strong> Fluent debates, literature, academic essays, interview prep</li>
+          </ul>
+        </div>
+        <div class="course-card">
+          <h3>TEF Canada Preparation</h3>
+          <p>Focused test preparation for all TEF sections: reading, listening, speaking, and writing. We guide you with mock tests and scoring strategies.</p>
+          <ul>
+            <li><strong>Recommended Duration:</strong> 2–3 months (depending on target score)</li>
+            <li><strong>Class Time:</strong> 60 minutes per session</li>
+            <li><strong>Includes:</strong> Section-wise practice, scoring rubric, weekly tests</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="plans" class="pricing">
+      <h2>Plans & Pricing</h2>
+      <p>Choose a schedule that fits your lifestyle. All plans include access to study material and flexible rescheduling.</p>
+      <div class="pricing-grid">
+        <!-- Pricing Plan 1 -->
+        <div class="pricing-card">
+          <h3>1:3 Group (3 Days/Week)</h3>
+          <p><strong>$179/month</strong></p>
+          <p>Small group. 12 classes/month. Best for steady learning pace.</p>
+          <div class="payment-options">
+            
+            
+             
+            <a href="/payment-details?item_name=1:3 Classes - 3 Days/Week&amount=179&payment_method=paypal" class="btn btn-paypal">
+             
+                
+                  
+              <i class="fab fa-paypal"></i> Pay with PayPal
+            </a>
+            <a href="/payment-details?item_name=1:3 Classes - 3 Days/Week&amount=179&payment_method=interac" class="btn btn-interac">
+              <i class="fas fa-university"></i> Pay with Interac e-Transfer
+            </a>
+          </div>
+        </div>
+
+        <!-- Pricing Plan 2 -->
+        <div class="pricing-card">
+          <h3>1:3 Group (5 Days/Week)</h3>
+          <p><strong>$249/month</strong></p>
+          <p>Intensive learning with 20 classes/month. Great for fast progress.</p>
+          <div class="payment-options">
+            <a href="/payment-details?item_name=1:3 Classes - 5 Days/Week&amount=249&payment_method=paypal" class="btn btn-paypal">
+              <i class="fab fa-paypal"></i> Pay with PayPal
+            </a>
+            <a href="/payment-details?item_name=1:3 Classes - 5 Days/Week&amount=249&payment_method=interac" class="btn btn-interac">
+              <i class="fas fa-university"></i> Pay with Interac e-Transfer
+            </a>
+          </div>
+        </div>
+
+        <!-- Pricing Plan 3 -->
+        <div class="pricing-card">
+          <h3>1:1 Private (3 Days/Week)</h3>
+          <p><strong>$349/month</strong></p>
+          <p>Customized instruction. Ideal for shy learners or specific goals.</p>
+          <div class="payment-options">
+            <a href="/payment-details?item_name=1:1 Classes - 3 Days/Week&amount=349&payment_method=paypal" class="btn btn-paypal">
+              <i class="fab fa-paypal"></i> Pay with PayPal
+            </a>
+            <a href="/payment-details?item_name=1:1 Classes - 3 Days/Week&amount=349&payment_method=interac" class="btn btn-interac">
+              <i class="fas fa-university"></i> Pay with Interac e-Transfer
+            </a>
+          </div>
+        </div>
+
+        <!-- Pricing Plan 4 -->
+        <div class="pricing-card">
+          <h3>1:1 Private (5 Days/Week)</h3>
+          <p><strong>$399/month</strong></p>
+          <p>Best for urgent TEF prep or fast-track immigration plans.</p>
+          <div class="payment-options">
+            <a href="/payment-details?item_name=1:1 Classes - 5 Days/Week&amount=399&payment_method=paypal" class="btn btn-paypal">
+              <i class="fab fa-paypal"></i> Pay with PayPal
+            </a>
+            <a href="/payment-details?item_name=1:1 Classes - 5 Days/Week&amount=399&payment_method=interac" class="btn btn-interac">
+              <i class="fas fa-university"></i> Pay with Interac e-Transfer
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Payment Form Modal -->
+    <div id="payment-modal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <span class="close" onclick="closePaymentModal()">&times;</span>
+        <h2>Complete Your Payment</h2>
+        <form id="payment-form" action="/redirect-to-paypal" method="POST">
+          <input type="hidden" id="item-name" name="item_name">
+          <input type="hidden" id="amount" name="amount">
+          <input type="hidden" id="payment-method" name="payment_method">
+
+          <label for="full-name">Full Name:</label>
+          <input type="text" id="full-name" name="full_name" required>
+
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required>
+
+          <label for="phone">Phone Number:</label>
+          <input type="tel" id="phone" name="phone" required>
+
+          <label for="available-time">Time You Are Available On:</label>
+          <input type="text" id="available-time" name="available_time" placeholder="e.g., 10:00 AM - 12:00 PM" required>
+
+          <label for="available-date">Date You Are Available On:</label>
+          <input type="date" id="available-date" name="available_date" required>
+
+          <label for="prior-experience">Do You Have Prior Experience in Learning French?</label>
+          <select id="prior-experience" name="prior_experience" required>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+
+          <label for="level">What's Your Level?</label>
+          <select id="level" name="level" required>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+
+          <label for="purpose">What's Your Purpose for Learning French?</label>
+          <select id="purpose" name="purpose" onchange="handlePurposeChange(this)" required>
+            <option value="pr">PR</option>
+            <option value="bilingual-job">Bilingual Job</option>
+            <option value="learning-skill">Learning as a Skill</option>
+          </select>
+
+          <!-- Additional Questions for PR -->
+          <div id="pr-questions" style="display: none;">
+            <label for="status">What Status Do You Hold?</label>
+            <select id="status" name="status">
+              <option value="work-permit">Work Permit</option>
+              <option value="study-permit">Study Permit</option>
+            </select>
+
+            <label for="permit-expiry">When's It Expiring?</label>
+            <input type="date" id="permit-expiry" name="permit_expiry">
+
+            <label for="exam-planning">When Are You Planning to Appear for the Exam?</label>
+            <input type="text" id="exam-planning" name="exam_planning" placeholder="e.g., 3 months from now">
+
+            <label for="clb-goal">What's Your CLB Goal to Achieve?</label>
+            <input type="text" id="clb-goal" name="clb_goal" placeholder="e.g., CLB 7">
+          </div>
+
+          <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+        </form>
+      </div>
+    </div>
+
+    <section class="testimonials">
+      <h2>Student Success Stories</h2>
+      <div class="testimonial-slider">
+        <p>"I cleared my TEF exam and boosted my CRS score by 50 points. FRENCH.GTA made it possible!" – David M.</p>
+        <p>"I joined with zero French. Now I confidently speak in meetings. Amazing instructors!" – Emily D.</p>
+        <p>"Flexible timings helped me learn even with a full-time job. Loved the small group approach." – Gurpreet K.</p>
+      </div>
+    </section>
+
+    <section class="demo-class-section">
+  <h2>Book a Demo Class</h2>
+  <p>Try a demo class for just $7! Fill out the form to schedule your session.</p>
+  <a href="/demo-registration" class="btn btn-primary demo-button">Book Your Demo Class</a>
+</section>
+  </main>
+
+  <section class="contact-whatsapp">
+            <a href="https://wa.me/+13653062049?text=Hi%20FRENCH.GTA%2C%20Can%20i%20know%20more%20about%20it?" 
+               target="_blank" class="cta-button">
+               Chat with us on WhatsApp
+            </a>
+        </section>
+
+  {% include 'footer.html' %}
+
+  <script>
+    function showPaymentForm(itemName, amount, paymentMethod) {
+      document.getElementById('item-name').value = itemName;
+      document.getElementById('amount').value = amount;
+      document.getElementById('payment-method').value = paymentMethod;
+      document.getElementById('payment-modal').style.display = 'block';
+    }
+
+    function closePaymentModal() {
+      document.getElementById('payment-modal').style.display = 'none';
+    }
+  </script>
+</body>
+
+</html>

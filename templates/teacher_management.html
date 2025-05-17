@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <style>
+    .punch-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        background: none;
+    }
+    .punch-table th, .punch-table td {
+        padding: 12px 14px;
+        background: rgba(255,255,255,0.92);
+        border-radius: 12px;
+        text-align: center;
+        font-size: 1.08em;
+        box-shadow: 0 1px 4px rgba(44,62,80,0.06);
+    }
+    .punch-table th {
+        background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+        color: #fff;
+        font-weight: 700;
+        border-radius: 14px 14px 0 0;
+        border-bottom: 2px solid #43cea2;
+    }
+    .punch-table tr {
+        transition: box-shadow 0.2s, background 0.2s;
+    }
+    .punch-table tr:hover td {
+        background: #e6f9f3;
+        box-shadow: 0 2px 12px rgba(67,206,162,0.10);
+    }
+    .punch-icon {
+        font-size: 1.3em;
+        margin-right: 6px;
+        vertical-align: middle;
+    }
+    .punch-in-col { color: #43cea2; }
+    .punch-out-col { color: #ff512f; }
+    .punch-action-btn {
+        background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        font-size: 1.1em;
+        margin: 0 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 4px rgba(44,62,80,0.10);
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s, transform 0.12s;
+    }
+    .punch-action-btn.delete {
+        background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%);
+    }
+    .punch-action-btn:hover {
+        background: linear-gradient(135deg, #185a9d 0%, #43cea2 100%);
+        color: #fff;
+        transform: scale(1.08);
+    }
+    .punch-action-btn.delete:hover {
+        background: linear-gradient(135deg, #dd2476 0%, #ff512f 100%);
+    }
+    .timer-cell {
+        font-family: 'Fira Mono', 'Consolas', monospace;
+        font-size: 1.1em;
+        color: #185a9d;
+        background: #e6f9f3;
+        border-radius: 8px;
+        padding: 6px 10px;
+        min-width: 90px;
+    }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+    <main class="main-content" style="margin-top: 90px;">
+        <!-- Live Clocks -->
+        <div style="display:flex; gap:32px; justify-content:center; align-items:center; margin-bottom:18px;">
+            <div><b>EST:</b> <span id="current-est"></span></div>
+            <div><b>IST:</b> <span id="current-ist"></span></div>
+        </div>
+        <script>
+        function updateClocks() {
+            const now = new Date();
+            // EST
+            const estFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/New_York',
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+            document.getElementById('current-est').textContent = estFormatter.format(now);
+            // IST
+            const istFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+            document.getElementById('current-ist').textContent = istFormatter.format(now);
+        }
+        setInterval(updateClocks, 1000);
+        updateClocks();
+        </script>
+        <!-- Teacher List Section -->
+        <section>
+            <h2>Teacher List</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Availability</th>
+                        <th>Specialization</th>
+                        <th>Hours Worked</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr>
+                        <td>{{ teacher.name }}</td>
+                        <td>{{ teacher.user_email }}</td>
+                        <td>{{ teacher.availability }}</td>
+                        <td>{{ teacher.specialization }}</td>
+                        <td>{{ teacher.hours_worked }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('teacher_management') }}">
+                                <input type="hidden" name="teacher_id" value="{{ teacher.id }}">
+                                <button type="submit">Edit</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Teacher Management Section -->
+        <section>
+            <h2>Teacher Management</h2>
+            <form method="POST" action="{{ url_for('teacher_management') }}">
+                <input type="hidden" name="teacher_id" value="{{ teacher_to_edit.id if teacher_to_edit else '' }}">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ teacher_to_edit.name if teacher_to_edit else '' }}" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ teacher_to_edit.user_email if teacher_to_edit else '' }}" required>
+                <label for="specialization">Specialization:</label>
+                <input type="text" id="specialization" name="specialization" value="{{ teacher_to_edit.specialization if teacher_to_edit else '' }}" required>
+                <button type="submit">Save</button>
+            </form>
+        </section>
+
+        <!-- Punch In/Out Management Section -->
+        <section>
+            <h2>Punch In/Out Records</h2>
+            <table class="punch-table">
+                <thead>
+                    <tr>
+                        <th>Teacher</th>
+                        <th class="punch-in-col"><i class="fa fa-right-to-bracket punch-icon"></i>Punch In (EST)</th>
+                        <th class="punch-in-col"><i class="fa fa-right-to-bracket punch-icon"></i>Punch In (IST)</th>
+                        <th class="punch-out-col"><i class="fa fa-right-from-bracket punch-icon"></i>Punch Out (EST)</th>
+                        <th class="punch-out-col"><i class="fa fa-right-from-bracket punch-icon"></i>Punch Out (IST)</th>
+                        <th><i class="fa fa-stopwatch punch-icon"></i>Timer</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in punch_records %}
+                    <tr id="row-{{ record.id }}">
+                        <td>{{ record.teacher_name }}</td>
+                        <td id="punch_in_est-{{ record.id }}" class="punch-in-col">{{ record.punch_in_est }}</td>
+                        <td id="punch_in_ist-{{ record.id }}" class="punch-in-col">{{ record.punch_in_ist }}</td>
+                        <td id="punch_out_est-{{ record.id }}" class="punch-out-col">{{ record.punch_out_est }}</td>
+                        <td id="punch_out_ist-{{ record.id }}" class="punch-out-col">{{ record.punch_out_ist }}</td>
+                        <td class="timer-cell"><span id="timer-{{ record.id }}">00:00:00</span></td>
+                        <td id="actions-{{ record.id }}">
+                            <button type="button" class="punch-action-btn" title="Edit" onclick="showEditForm({{ record.id }}, '{{ record.punch_in_est }}', '{{ record.punch_out_est }}')"><i class="fa fa-pen"></i></button>
+                            <form method="POST" action="{{ url_for('delete_punch_record', record_id=record.id) }}" style="display:inline;">
+                                <button type="submit" class="punch-action-btn delete" title="Delete"><i class="fa fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Assign Students Section -->
+        <section>
+            <h2>Assign Students</h2>
+            <form method="POST" action="{{ url_for('assign_student') }}">
+                <label for="teacher_id">Teacher:</label>
+                <select id="teacher_id" name="teacher_id" required>
+                    {% for teacher in teachers %}
+                    <option value="{{ teacher.id }}">{{ teacher.name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="student_id">Student:</label>
+                <select id="student_id" name="student_id" required>
+                    {% for student in students %}
+                    <option value="{{ student.id }}">{{ student.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Assign</button>
+            </form>
+        </section>
+
+        <!-- Material Sharing Section -->
+        <section>
+            <h2>Material Sharing</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Teacher</th>
+                        <th>Material Title</th>
+                        <th>Link</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for material in materials %}
+                    <tr>
+                        <td>{{ material.teacher_name }}</td>
+                        <td>{{ material.title }}</td>
+                        <td><a href="{{ material.link }}" target="_blank">View</a></td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_material', material_id=material.id) }}">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Conversations Section -->
+        <section>
+            <h2>Conversations</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Teacher</th>
+                        <th>Student</th>
+                        <th>Message</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for conversation in conversations %}
+                    <tr>
+                        <td>{{ conversation.teacher_name }}</td>
+                        <td>{{ conversation.student_name }}</td>
+                        <td>{{ conversation.message }}</td>
+                        <td>{{ conversation.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Payment Management Section -->
+        <section>
+            <h2>Payment Management</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Teacher</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.teacher_name }}</td>
+                        <td>{{ payment.amount }}</td>
+                        <td>{{ payment.date }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('edit_payment') }}">
+                                <input type="hidden" name="payment_id" value="{{ payment.id }}">
+                                <button type="submit">Edit</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('delete_payment', payment_id=payment.id) }}">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Scheduling Section -->
+        <section>
+            <h2>Schedule Classes</h2>
+            <form method="POST" action="{{ url_for('schedule_class') }}">
+                <label for="teacher_id">Teacher:</label>
+                <select id="teacher_id" name="teacher_id" required>
+                    {% for teacher in teachers %}
+                    <option value="{{ teacher.id }}">{{ teacher.name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="student_id">Student:</label>
+                <select id="student_id" name="student_id" required>
+                    {% for student in students %}
+                    <option value="{{ student.id }}">{{ student.name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="date_est">Date (EST):</label>
+                <input type="date" id="date_est" name="date_est" required>
+                <label for="time_est">Time (EST):</label>
+                <input type="time" id="time_est" name="time_est" required>
+                <label for="date_ist">Date (IST):</label>
+                <input type="date" id="date_ist" name="date_ist" required>
+                <label for="time_ist">Time (IST):</label>
+                <input type="time" id="time_ist" name="time_ist" required>
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" required>
+                <label for="link">Class Link:</label>
+                <input type="url" id="link" name="link" required>
+                <button type="submit">Send for Approval</button>
+            </form>
+        </section>
+    </main>
+    <script>
+        function updateTimes() {
+            const now = new Date();
+
+            // Format EST (UTC-5)
+            const estFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/New_York',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const estTime = estFormatter.format(now);
+            document.getElementById('current-est').textContent = estTime;
+
+            // Format IST (UTC+5:30)
+            const istFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const istTime = istFormatter.format(now);
+            document.getElementById('current-ist').textContent = istTime;
+        }
+
+        // Update times every second
+        setInterval(updateTimes, 1000);
+        updateTimes();
+    </script>
+    <script>
+    function showEditForm(id, punchIn, punchOut) {
+        const row = document.getElementById('row-' + id);
+        const actions = document.getElementById('actions-' + id);
+        // Convert EST string to datetime-local value (approximate, for admin convenience)
+        function toInputValue(dt) {
+            if (!dt || dt === 'None') return '';
+            // dt is 'YYYY-MM-DD HH:MM:SS', convert to 'YYYY-MM-DDTHH:MM'
+            return dt.replace(' ', 'T').slice(0, 16);
+        }
+        row.innerHTML = `
+            <td colspan="6">
+                <form method="POST" action="{{ url_for('edit_punch_record') }}" style="display:inline-flex; gap:8px; align-items:center;">
+                    <input type="hidden" name="record_id" value="${id}">
+                    <label>Punch In (EST): <input type="datetime-local" name="punch_in" value="${toInputValue(punchIn)}"></label>
+                    <label>Punch Out (EST): <input type="datetime-local" name="punch_out" value="${toInputValue(punchOut)}"></label>
+                    <button type="submit">Save</button>
+                    <button type="button" onclick="window.location.reload()">Cancel</button>
+                </form>
+            </td>
+        `;
+    }
+    </script>
+    {% include 'footer.html' %}
+</body>
+</html>

@@ -1,0 +1,16 @@
+{% include 'teacher_sidebar.html' %}
+{% include 'header.html' %}
+<main class="main-content portal-container" style="margin-top: 90px; margin-left:220px;">
+    <h1 class="page-title">My Profile</h1>
+    <section style="margin-top:32px; display:flex; justify-content:center;">
+        <div style="background:linear-gradient(135deg,#232526 0%,#414345 100%); color:#fff; border-radius:18px; box-shadow:0 2px 12px rgba(44,62,80,0.12); padding:32px 38px; min-width:320px; max-width:420px;">
+            <div style="font-size:1.3em; font-weight:700; margin-bottom:18px;">{{ teacher.name }}</div>
+            <div style="margin-bottom:10px;"><b>Email:</b> {{ teacher.email }}</div>
+            <div style="margin-bottom:10px;"><b>Contact:</b> {{ teacher.contact }}</div>
+            <div style="margin-bottom:10px;"><b>Role:</b> {{ teacher.role|default('Teacher') }}</div>
+            <div style="margin-bottom:10px;"><b>Joined:</b> {{ teacher.joined|default('N/A') }}</div>
+            <!-- Add more fields as needed -->
+        </div>
+    </section>
+</main>
+{% include 'footer.html' %}

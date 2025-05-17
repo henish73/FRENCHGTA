@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About FRENCH.GTA | Your Partner in Online French Education</title>
+    <meta name="description"
+        content="Discover FRENCH.GTA: Learn about our passionate team, effective online French courses, and our commitment to your language learning success.">
+    <meta name="keywords"
+        content="about FRENCH.GTA, online French school, learn French online, French instructors, French language education, our mission, our values">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/french.gta logo.jpg') }}" type="image/x-icon">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+
+<body>
+    {% include 'header.html' %}
+    <main class="main-content">
+        <section class="about-hero">
+            <h1>About FRENCH.GTA: Your Dedicated Partner in Online French Education</h1>
+            <p class="hero-text">
+                FRENCH.GTA is more than just an online language school; we're a community of passionate educators committed
+                to providing engaging and effective online French courses. We empower students to achieve their language
+                goals, connect with French culture, and unlock new opportunities.
+            </p>
+        </section>
+
+        <section class="our-mission">
+            <h2>Our Mission: Empowering Learners, Connecting Cultures</h2>
+            <p>
+                Our mission is to make French language learning accessible and enjoyable for everyone. We strive to create
+                a supportive and dynamic online environment where students of all levels can thrive and develop a lifelong
+                love of the French language.
+            </p>
+        </section>
+
+        <section class="our-team">
+            <h2>Meet Our Expert Instructors</h2>
+            <p>
+                Our team consists of highly qualified and experienced French instructors who are passionate about teaching.
+                They bring a wealth of knowledge, creativity, and dedication to the virtual classroom, ensuring that every
+                student receives personalized attention and achieves their full potential.
+                </p>
+        </section>
+
+        <section class="our-approach">
+            <h2>Our Effective Approach to Online French Learning</h2>
+            <p>
+                We utilize a communicative approach, focusing on practical communication skills and real-world application.
+                Our online classes are interactive, engaging, and designed to foster a supportive learning community.
+            </p>
+            <h4>We Believe In:</h4>
+            <ul>
+                <li>
+                    <strong>Interactive Online Classes:</strong> Creating a dynamic and engaging virtual classroom
+                    experience.
+                </li>
+                <li>
+                    <strong>Student-Centered Learning:</strong> Tailoring our instruction to meet individual learning styles
+                    and goals.
+                </li>
+                <li>
+                    <strong>Communicative Approach:</strong> Emphasizing speaking and listening skills from the first lesson.
+                </li>
+                <li>
+                    <strong>Cultural Immersion:</strong> Integrating authentic French culture into our curriculum.
+                </li>
+            </ul>
+        </section>
+
+        <section class="our-values">
+            <h2>Our Core Values: Guiding Principles for Success</h2>
+            <p>
+                These values are at the heart of everything we do at FRENCH.GTA:
+            </p>
+            <ul>
+                <li>
+                    <strong>Excellence:</strong> Providing the highest quality online French instruction.
+                </li>
+                <li>
+                    <strong>Passion:</strong> Sharing our love for the French language and culture.
+                </li>
+                <li>
+                    <strong>Community:</strong> Building a strong online learning community.
+                </li>
+                <li>
+                    <strong>Innovation:</strong> Continuously improving our teaching methods and online resources.
+                </li>
+            </ul>
+        </section>
+
+        <section class="join-us">
+            <h2>Join Our Growing Team</h2>
+            <p>
+                Are you passionate about French and online education? Explore exciting career opportunities at FRENCH.GTA and
+                become part of our dynamic team.
+                <a href="{{ url_for('careers') }}" class="cta-button">View Open Positions</a>
+            </p>
+        </section>
+
+    </main>
+    {% include 'footer.html' %}
+</body>
+
+</html>

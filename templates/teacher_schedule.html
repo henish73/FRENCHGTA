@@ -1,0 +1,110 @@
+{% include 'teacher_sidebar.html' %}
+{% include 'header.html' %}
+<main class="main-content portal-container" style="margin-top: 90px; margin-left:220px;">
+    <h1 class="page-title">My Schedule</h1>
+    <!-- Floating Schedule Class Button -->
+    <button id="schedule-class-fab" title="Schedule Class" aria-label="Schedule Class" style="position:fixed; top:110px; right:48px; z-index:3000; background:linear-gradient(90deg,#43cea2,#185a9d); color:#fff; border:none; border-radius:50%; width:64px; height:64px; box-shadow:0 4px 24px rgba(44,62,80,0.18); font-size:2em; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s;">
+        <i class="fa fa-plus"></i>
+    </button>
+    <script>
+    document.getElementById('schedule-class-fab').onclick = function() {
+        document.getElementById('add-class-modal').style.display = 'flex';
+        document.getElementById('add-class-modal').setAttribute('aria-modal', 'true');
+        document.getElementById('add-class-modal').setAttribute('role', 'dialog');
+        document.getElementById('add-class-modal').setAttribute('aria-labelledby', 'add-class-modal-title');
+        setTimeout(function() { document.getElementById('class_name').focus(); }, 100);
+    };
+    </script>
+    <!-- Teacher Calendar Section -->
+    <section style="margin-top: 32px;">
+        <h2>Calendar View</h2>
+        <button id="add-class-btn" style="margin-bottom:16px; background:linear-gradient(90deg,#43cea2,#185a9d); color:#fff; border:none; border-radius:8px; padding:10px 18px; font-size:1.1em; cursor:pointer;">+ Add Class/Shift</button>
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+        <div id="teacher-calendar" style="background:#f7f8fa; border-radius:12px; min-height:380px; padding:12px;"></div>
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+        <script type="application/json" id="calendar-events">
+            {{ calendar_events | tojson | safe }}
+        </script>
+        <script type="text/javascript">
+        // ... calendar JS logic ...
+        </script>
+        <!-- Modal for Add Class/Shift -->
+        <div id="add-class-modal" style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.35); align-items:center; justify-content:center;" aria-modal="true" role="dialog" aria-labelledby="add-class-modal-title">
+            <div style="background:#fff; border-radius:16px; max-width:420px; margin:60px auto; padding:32px 24px; position:relative; box-shadow:0 4px 32px rgba(44,62,80,0.18);">
+                <button id="close-modal-btn" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.5em; color:#888; cursor:pointer;" aria-label="Close Modal">&times;</button>
+                <h3 id="add-class-modal-title">Add Class/Shift</h3>
+                <form id="add-class-form" method="POST" action="{{ url_for('schedule_class') }}">
+            <div class="form-group">
+                <label for="class_name">Class Name:</label>
+                <input type="text" id="class_name" name="class_name" required>
+            </div>
+            <div class="form-group">
+                        <label for="subject">Subject:</label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="class_date">Date:</label>
+                <input type="date" id="class_date" name="class_date" required>
+            </div>
+            <div class="form-group">
+                        <label for="class_time">Time:</label>
+                <input type="time" id="class_time" name="class_time" required>
+            </div>
+                    <div class="form-group">
+                        <label for="timezone">Time Zone:</label>
+                        <select id="timezone" name="timezone" required>
+                            <option value="Asia/Kolkata" selected>IST (Asia/Kolkata)</option>
+                            <option value="America/New_York">EST (America/New_York)</option>
+                        </select>
+                    </div>
+            <div class="form-group">
+                <label for="students">Select Students:</label>
+                        <select id="students" name="students[]" multiple required style="min-width:200px; min-height:60px;">
+                        {% for student in students %}
+                        <option value="{{ student.id }}">{{ student.name }}</option>
+                        {% endfor %}
+                </select>
+                    </div>
+                    <button type="submit" class="btn" style="margin-top:12px; background:linear-gradient(90deg,#43cea2,#185a9d); color:#fff; border:none; border-radius:8px; padding:10px 18px; font-size:1.1em; cursor:pointer;">Add Class/Shift</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <!-- Upcoming Scheduled Classes Table/Card View -->
+    <section style="margin-top: 32px;">
+        <h2>Upcoming Scheduled Classes</h2>
+        {% if upcoming_classes and upcoming_classes|length > 0 %}
+        <div class="scheduled-classes-list" style="display: flex; flex-wrap: wrap; gap: 24px;">
+            {% for cls in upcoming_classes %}
+            <div class="scheduled-class-card" style="background:linear-gradient(135deg,#232526 0%,#414345 100%); color:#fff; border-radius:18px; box-shadow:0 2px 12px rgba(44,62,80,0.12); padding:22px 28px; min-width:260px; max-width:340px; flex:1 1 260px; display:flex; flex-direction:column; gap:10px; position:relative;">
+                <div style="font-size:1.2em; font-weight:700;">{{ cls.class_name }}</div>
+                <div><b>Subject:</b> {{ cls.subject }}</div>
+                <div><b>Date:</b> {{ cls.class_date }} <b>Time:</b> {{ cls.class_time }} <b>({{ cls.timezone }})</b></div>
+                <div><b>Students:</b> {{ cls.students|join(', ') }}</div>
+                <div style="position:absolute; top:16px; right:16px; display:flex; gap:8px;">
+                    <button class="edit-class-btn" title="Edit" style="background:rgba(67,206,162,0.18); border:none; border-radius:8px; color:#43cea2; padding:6px 10px; cursor:pointer;"><i class="fa fa-edit"></i></button>
+                    <button class="delete-class-btn" title="Delete" style="background:rgba(255,81,47,0.18); border:none; border-radius:8px; color:#ff512f; padding:6px 10px; cursor:pointer;"><i class="fa fa-trash"></i></button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="color:#888; font-size:1.1em; margin-top:18px;">No upcoming classes scheduled.</div>
+        {% endif %}
+    </section>
+    <!-- Toast for Success Message -->
+    <div id="schedule-toast" style="display:none; position:fixed; top:32px; right:32px; background:linear-gradient(90deg,#43cea2,#185a9d); color:#fff; padding:18px 32px; border-radius:12px; font-size:1.1em; box-shadow:0 2px 12px rgba(44,62,80,0.18); z-index:4000;">Class scheduled successfully!</div>
+</main>
+{% include 'footer.html' %}
+<script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js" type="module"></script>
+<script>
+// ... calendar and modal JS logic ...
+document.getElementById('add-class-form').onsubmit = function(e) {
+    setTimeout(function() {
+        document.getElementById('schedule-toast').style.display = 'block';
+        setTimeout(function() {
+            document.getElementById('schedule-toast').style.display = 'none';
+        }, 2200);
+    }, 200);
+};
+</script> 
