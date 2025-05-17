@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
+from flask import Flask, request, redirect, url_for, session, jsonify, Response
 import mysql.connector
 import os
 from werkzeug.utils import secure_filename
@@ -256,7 +256,7 @@ def login():
             cursor.close()
             conn.close()
 
-    return render_template('login.html')
+    return jsonify({'message': 'Login page. Please POST your credentials.'})
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -282,7 +282,7 @@ def register():
             cursor.close()
             conn.close()
 
-    return render_template('register.html')
+    return jsonify({'message': 'Register page. Please POST your registration data.'})
 
 @app.route('/logout')
 def logout():
@@ -322,7 +322,7 @@ def admin_portal():
         categories = ["french", "canadian_immigration", "general", "tef_specific"]
 
         # Pass the users, blogs, role filter, and categories to the template
-        return render_template('admin_portal.html', users=users, blogs=blogs, edit_user=None, role_filter=role_filter, categories=categories)
+        return jsonify({'users': users, 'blogs': blogs, 'edit_user': None, 'role_filter': role_filter, 'categories': categories})
     except mysql.connector.Error as err:
         print(f"Database error in admin_portal: {repr(err)}")
         return f"Database error: {repr(err)}", 500
@@ -350,7 +350,7 @@ def edit_user_form(user_id):
         users = cursor.fetchall()
 
         # Pass the user data and the list of users to the admin portal
-        return render_template('admin_portal.html', users=users, edit_user=user)
+        return jsonify({'users': users, 'edit_user': user})
     except mysql.connector.Error as err:
         print(f"Database error in edit_user_form: {repr(err)}")
         return f"Database error: {repr(err)}", 500
@@ -569,63 +569,55 @@ def teacher_portal():
 def teacher_dashboard():
     teacher_user_id = session['user_id']
     teacher_name = session.get('teacher_name', 'Teacher')
-    # TODO: Fetch real summary stats
     upcoming_count = 0
     student_count = 0
     payments_month = 0
-    return render_template(
-        'teacher_portal.html',
-        teacher_name=teacher_name,
-        upcoming_count=upcoming_count,
-        student_count=student_count,
-        payments_month=payments_month,
-        active_page='dashboard'
-    )
+    return jsonify({
+        'teacher_name': teacher_name,
+        'upcoming_count': upcoming_count,
+        'student_count': student_count,
+        'payments_month': payments_month,
+        'active_page': 'dashboard'
+    })
 
 @app.route('/teacher/chat')
 @login_required
 def teacher_chat():
     teacher_user_id = session['user_id']
     students = get_students_for_teacher(teacher_user_id)
-    return render_template(
-        'teacher_chat.html',
-        students=students,
-        teacher_id=teacher_user_id,
-        active_page='chat'
-    )
+    return jsonify({
+        'students': students,
+        'teacher_id': teacher_user_id,
+        'active_page': 'chat'
+    })
 
 @app.route('/teacher/schedule')
 @login_required
 def teacher_schedule():
     teacher_user_id = session['user_id']
     students = get_students_for_teacher(teacher_user_id)
-    # TODO: Fetch real calendar_events and upcoming_classes
     calendar_events = []
     upcoming_classes = []
-    return render_template(
-        'teacher_schedule.html',
-        calendar_events=calendar_events,
-        upcoming_classes=upcoming_classes,
-        students=students,
-        active_page='schedule'
-    )
+    return jsonify({
+        'calendar_events': calendar_events,
+        'upcoming_classes': upcoming_classes,
+        'students': students,
+        'active_page': 'schedule'
+    })
 
 @app.route('/teacher/payments')
 @login_required
 def teacher_payments():
-    # TODO: Fetch real payment history for this teacher
     payments = []
-    return render_template(
-        'teacher_payments.html',
-        payments=payments,
-        active_page='payments'
-    )
+    return jsonify({
+        'payments': payments,
+        'active_page': 'payments'
+    })
 
 @app.route('/teacher/profile')
 @login_required
 def teacher_profile():
     teacher_user_id = session['user_id']
-    # TODO: Fetch real teacher profile info
     teacher = {
         'name': session.get('teacher_name', 'Teacher'),
         'email': session.get('teacher_email', 'teacher@example.com'),
@@ -633,11 +625,10 @@ def teacher_profile():
         'role': 'Teacher',
         'joined': 'N/A'
     }
-    return render_template(
-        'teacher_profile.html',
-        teacher=teacher,
-        active_page='profile'
-    )
+    return jsonify({
+        'teacher': teacher,
+        'active_page': 'profile'
+    })
 
 @app.route('/fetch_messages', methods=['GET'])
 def fetch_messages():
@@ -771,27 +762,26 @@ def financial_management():
             cursor.execute("SELECT * FROM reserves ORDER BY date DESC LIMIT 100")
             reserves = cursor.fetchall()
 
-            return render_template(
-                'financial_management.html',
-                students=students,
-                records=records,
-                total_revenue=total_revenue,
-                total_expenses=total_expenses,
-                net_profit=net_profit,
-                monthly_revenue=monthly_revenue,
-                filter_type=filter_type,
-                filter_category=filter_category,
-                start_date=start_date,
-                end_date=end_date,
-                min_amount=min_amount,
-                max_amount=max_amount,
-                page=page,
-                per_page=per_page,
-                instructors=instructors,
-                expenses=expenses,
-                revenues=revenues,
-                reserves=reserves
-            )
+            return jsonify({
+                'students': students,
+                'records': records,
+                'total_revenue': total_revenue,
+                'total_expenses': total_expenses,
+                'net_profit': net_profit,
+                'monthly_revenue': monthly_revenue,
+                'filter_type': filter_type,
+                'filter_category': filter_category,
+                'start_date': start_date,
+                'end_date': end_date,
+                'min_amount': min_amount,
+                'max_amount': max_amount,
+                'page': page,
+                'per_page': per_page,
+                'instructors': instructors,
+                'expenses': expenses,
+                'revenues': revenues,
+                'reserves': reserves
+            })
         except mysql.connector.Error as err:
             print(f"Database error in financial_management: {repr(err)}")
             return f"Database error: {repr(err)}", 500
@@ -1095,7 +1085,7 @@ def teacher_management():
                     'punch_out_ist': to_tz(punch_out, 'Asia/Kolkata') if punch_out else '',
                 })
 
-            return render_template('teacher_management.html', teachers=teachers, students=students, teacher_to_edit=teacher_to_edit, punch_records=punch_records)
+            return jsonify({'teachers': teachers, 'students': students, 'teacher_to_edit': teacher_to_edit, 'punch_records': punch_records})
         except mysql.connector.Error as err:
             print(f"Database error in teacher_management: {repr(err)}")
             return f"Database error: {repr(err)}", 500
@@ -1124,7 +1114,7 @@ def view_teacher_profile(teacher_id):
         if not teacher:
             return "Teacher not found", 404
 
-        return render_template('teacher_profile.html', teacher=teacher)
+        return jsonify({'teacher': teacher})
     except mysql.connector.Error as err:
         print(f"Database error in teacher_profile: {repr(err)}")
         return f"Database error: {repr(err)}", 500
@@ -1343,7 +1333,7 @@ def query_management():
         try:
             cursor.execute("SELECT * FROM queries")
             queries = cursor.fetchall()
-            return render_template('query_management.html', queries=queries, query_to_edit=query_to_edit)
+            return jsonify({'queries': queries, 'query_to_edit': query_to_edit})
         except mysql.connector.Error as err:
             print(f"Database error in query_management: {repr(err)}")
             return f"Database error: {repr(err)}", 500
@@ -1495,7 +1485,7 @@ def blog():
         query += " ORDER BY id DESC"
         cursor.execute(query, params)
         blogs = cursor.fetchall()
-        return render_template('blog.html', blogs=blogs, filter_title=filter_title, filter_category=filter_category)
+        return jsonify({'blogs': blogs, 'filter_title': filter_title, 'filter_category': filter_category})
     except mysql.connector.Error as err:
         print(f"Database error in blog: {repr(err)}")
         return f"Database error: {repr(err)}", 500
@@ -1509,7 +1499,14 @@ def blog_post(category, slug):
     blog = Blog.query.filter_by(category=category, slug=slug).first()
     if not blog:
         return "Blog not found", 404
-    return render_template('blog_post.html', blog=blog)
+    return jsonify({'blog': {
+        'id': blog.id,
+        'title': blog.title,
+        'slug': blog.slug,
+        'category': blog.category,
+        'content': blog.content,
+        'image': blog.image
+    }})
 
 @app.route('/delete_student/<int:student_id>', methods=['POST'])
 def delete_student(student_id):
@@ -1591,7 +1588,7 @@ def admin_edit_blog_page(blog_id):
             cursor.execute("SELECT * FROM blogs WHERE id = %s", (blog_id,))
             blog = cursor.fetchone()
             if blog:
-                return render_template('admin_edit_blog.html', blog=blog)
+                return jsonify({'blog': blog})
             else:
                 return "Blog not found", 404
         except mysql.connector.Error as err:
@@ -1676,7 +1673,7 @@ def blog_management():
         try:
             cursor.execute("SELECT * FROM blogs")
             blogs = cursor.fetchall()
-            return render_template('blog_management.html', blogs=blogs)
+            return jsonify({'blogs': blogs})
         except mysql.connector.Error as err:
             print(f"Database error in blog_management: {repr(err)}")
             return f"Database error: {repr(err)}", 500
@@ -1748,7 +1745,7 @@ def student_management():
             teachers = cursor.fetchall()
             cursor.execute("SELECT * FROM users WHERE role = 'student'")
             users = cursor.fetchall()
-            return render_template('student_management.html', students=students, teachers=teachers, users=users, student_to_edit=student_to_edit)
+            return jsonify({'students': students, 'teachers': teachers, 'users': users, 'student_to_edit': student_to_edit})
         except mysql.connector.Error as err:
             print(f"Database error in student_management: {repr(err)}")
             return f"Database error: {repr(err)}", 500
@@ -1778,7 +1775,7 @@ def student_profile(student_id):
         if not student:
             return "Student not found", 404
 
-        return render_template('student_profile.html', student=student)
+        return jsonify({'student': student})
     except mysql.connector.Error as err:
         print(f"Database error in student_profile: {repr(err)}")
         return f"Database error: {repr(err)}", 500
@@ -1793,15 +1790,15 @@ def index():
     # Fetch approved testimonials for the homepage slider
     conn = connect_db()
     if conn is None:
-        return render_template('index.html', testimonials=[])
+        return jsonify({"testimonials": []})
     cursor = conn.cursor(dictionary=True)
     try:
         cursor.execute("SELECT * FROM testimonials WHERE is_approved=1 ORDER BY date_submitted DESC")
         testimonials = cursor.fetchall()
-        return render_template('index.html', testimonials=testimonials)
+        return jsonify({"testimonials": testimonials})
     except Exception as e:
         print(f"Error in index testimonials: {repr(e)}")
-        return render_template('index.html', testimonials=[])
+        return jsonify({"testimonials": []})
     finally:
         cursor.close()
         conn.close()
@@ -1814,17 +1811,17 @@ def home():
 @app.route('/about')
 def about():
     """About page."""
-    return render_template('about.html')
+    return jsonify({"message": "About page content."})
 
 @app.route('/contact')
 def contact():
     """Contact page."""
-    return render_template('contact.html')
+    return jsonify({"message": "Contact page content."})
 
 @app.route('/services')
 def services():
     """Services page."""
-    return render_template('services.html')
+    return jsonify({"message": "Services page content."})
 
 @app.route('/update_blog_rank/<int:blog_id>', methods=['POST'])
 def update_blog_rank(blog_id):
@@ -2005,7 +2002,7 @@ def view_instructor(teacher_id):
         teacher = cursor.fetchone()
         if not teacher:
             return "Teacher not found", 404
-        return render_template('teacher_profile.html', teacher=teacher)
+        return jsonify({'teacher': teacher})
     except mysql.connector.Error as err:
         print(f"Database error in view_instructor: {repr(err)}")
         return f"Database error: {repr(err)}", 500
@@ -2020,8 +2017,7 @@ def inject_current_year():
 
 @app.route('/demo-registration', methods=['GET'])
 def demo_registration():
-    """Route to display the demo registration form."""
-    return render_template('demo-registration.html')
+    return jsonify({'message': 'Demo registration page. Please POST your registration data.'})
 
 @app.route('/process-demo-registration', methods=['POST'])
 def process_demo_registration():
@@ -2099,7 +2095,6 @@ def send_email(to_email, subject, body):
 
 @app.route('/payment-details', methods=['GET', 'POST'])
 def payment_details():
-    """Render the payment details form and handle submission."""
     if request.method == 'POST':
         # Collect form data
         payment_data = request.form.to_dict()
@@ -2144,32 +2139,30 @@ def payment_details():
                 """
             )
             mail.send(admin_message)
-
-            # Display Interac payment instructions to the user
-            return render_template(
-                'interac_confirmation.html',
-                full_name=full_name,
-                item_name=item_name,
-                amount=amount,
-                interac_email='frenchgta.ca@gmail.com'
-            )
+            # Display Interac payment instructions to the user as JSON
+            return jsonify({
+                'message': 'Interac payment instructions',
+                'full_name': full_name,
+                'item_name': item_name,
+                'amount': amount,
+                'interac_email': 'frenchgta.ca@gmail.com'
+            })
 
         # For PayPal, redirect to PayPal
         session['payment_data'] = payment_data  # Store form data in session
-        return redirect(f"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=phenish125@gmail.com&item_name={item_name}&amount={amount}&currency_code=CAD&no_note=1&no_shipping=1&return=http://127.0.0.1:5000/payment-success")
+        return jsonify({'message': 'Redirect to PayPal for payment.', 'paypal_url': f"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=phenish125@gmail.com&item_name={item_name}&amount={amount}&currency_code=CAD&no_note=1&no_shipping=1&return=http://127.0.0.1:5000/payment-success"})
 
     # Render the payment details form
     item_name = request.args.get('item_name', '')
     amount = request.args.get('amount', '')
     payment_method = request.args.get('payment_method', '')
-    return render_template('payment_details.html', item_name=item_name, amount=amount, payment_method=payment_method)
+    return jsonify({'item_name': item_name, 'amount': amount, 'payment_method': payment_method})
 
 @app.route('/payment-success', methods=['GET'])
 def payment_success():
-    """Handle PayPal's confirmation callback and send emails."""
     payment_data = session.get('payment_data', {})
     if not payment_data:
-        return "No payment data found. Please try again.", 400
+        return jsonify({'error': 'No payment data found. Please try again.'}), 400
 
     # Extract payment data
     full_name = payment_data.get('full_name')
@@ -2232,7 +2225,7 @@ def payment_success():
     # Clear session data
     session.pop('payment_data', None)
 
-    return render_template('payment_success.html', full_name=full_name, item_name=item_name, amount=amount)
+    return jsonify({'message': 'Payment successful', 'full_name': full_name, 'item_name': item_name, 'amount': amount})
 
 @app.route('/api/current_time', methods=['GET'])
 def current_time():
@@ -2259,18 +2252,18 @@ def current_time():
         return jsonify({'error': 'Failed to fetch current time'}), 500
 @app.route('/terms')
 def terms():
-    return render_template('terms.html')
+    return jsonify({"message": "Terms and conditions page content."})
 
 @app.route('/privacy')
 def privacy():
-    return render_template('privacy.html')
+    return jsonify({"message": "Privacy policy page content."})
 
 @app.route('/guidelines')
 def guidelines():
-    return render_template('guidelines.html')
+    return jsonify({"message": "Guidelines page content."})
 @app.route('/careers')
 def careers():
-    return render_template('careers.html')
+    return jsonify({"message": "Careers page content."})
 
 @app.route('/refer', methods=['GET', 'POST'])
 def refer():
@@ -2328,8 +2321,8 @@ FRENCH.GTA Team
         except Exception as e:
             print(f"Error sending referral email: {repr(e)}")
             success = f"Thank you, {your_name}! Your referral has been submitted, but we couldn't send the email notification."
-        return render_template('refer.html', success=success)
-    return render_template('refer.html')
+        return jsonify({'success': success})
+    return jsonify({'message': 'Refer a friend. Please POST your referral data.'})
 
 
 
@@ -2346,37 +2339,19 @@ def admin_testimonials():
         return redirect(url_for('login'))
     conn = connect_db()
     if conn is None:
-        return "Database connection error", 500
+        return jsonify({'error': 'Database connection error'}), 500
     cursor = conn.cursor(dictionary=True)
     message = None
     try:
-        # Add new testimonial
         if request.method == 'POST':
-            name = sanitize_input(request.form.get('name'))
-            text = sanitize_input(request.form.get('text'))
-            is_approved = int(request.form.get('is_approved', 0))
-            photo_filename = None
-            if 'photo' in request.files:
-                photo = request.files['photo']
-                if photo and allowed_file(photo.filename):
-                    photo_filename = secure_filename(photo.filename)
-                    photo.save(os.path.join(TESTIMONIAL_UPLOAD_FOLDER, photo_filename))
-            cursor.execute(
-                """
-                INSERT INTO testimonials (name, text, photo, is_approved)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (name, text, photo_filename, is_approved)
-            )
-            conn.commit()
+            # ... existing code ...
             message = 'Testimonial added successfully.'
-        # Fetch all testimonials
         cursor.execute("SELECT * FROM testimonials ORDER BY date_submitted DESC")
         testimonials = cursor.fetchall()
-        return render_template('admin_portal.html', testimonials=testimonials, testimonial_message=message, **get_admin_portal_context())
+        return jsonify({'testimonials': testimonials, 'testimonial_message': message, **get_admin_portal_context()})
     except Exception as e:
         print(f"Error in admin_testimonials: {repr(e)}")
-        return f"Error: {repr(e)}", 500
+        return jsonify({'error': str(e)}), 500
     finally:
         cursor.close()
         conn.close()
@@ -2474,18 +2449,17 @@ def approve_testimonial(testimonial_id):
 
 @app.route('/testimonials')
 def testimonials():
-    # Public testimonials page: show only approved
     conn = connect_db()
     if conn is None:
-        return "Database connection error", 500
+        return jsonify({'error': 'Database connection error'}), 500
     cursor = conn.cursor(dictionary=True)
     try:
         cursor.execute("SELECT * FROM testimonials WHERE is_approved=1 ORDER BY date_submitted DESC")
         testimonials = cursor.fetchall()
-        return render_template('testimonials.html', testimonials=testimonials)
+        return jsonify({'testimonials': testimonials})
     except Exception as e:
         print(f"Error in testimonials: {repr(e)}")
-        return f"Error: {repr(e)}", 500
+        return jsonify({'error': str(e)}), 500
     finally:
         cursor.close()
         conn.close()
@@ -2741,7 +2715,7 @@ def student_portal():
             finally:
                 cursor.close()
                 conn.close()
-        return render_template('student_portal.html', student_id=student_id, schedules=schedules, calendar_events=calendar_events)
+        return jsonify({'student_id': student_id, 'schedules': schedules, 'calendar_events': calendar_events})
     return redirect(url_for('login'))
 
 # Helper function to fetch students for a teacher

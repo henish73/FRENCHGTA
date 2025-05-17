@@ -6,9 +6,9 @@
     <title>Contact FRENCH.GTA | Inquire About French Courses</title>
     <meta name="description" content="Contact FRENCH.GTA to inquire about our French language courses, corporate training, or any other questions you may have. We're here to help!">
     <meta name="keywords" content="contact FRENCH.GTA, inquiry form, French courses, corporate training, contact us, Toronto, GTA, French language school">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='img/french.gta logo.jpg') }}" type="image/x-icon">
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" href="/static/img/french.gta logo.jpg" type="image/x-icon">
+    <script src="/static/script.js" defer></script>
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -20,7 +20,7 @@
         <h1>Contact Us</h1>
         <p>Have questions about our French courses, corporate training, or anything else? We'd love to hear from you!</p>
 
-        <form id="inquiryForm" method="POST" action="{{ url_for('submit_inquiry') }}" class="form">
+        <form id="inquiryForm" method="POST" action="/submit_inquiry" class="form">
             <div class="form-group">
                 <label for="name">Your Name</label>
                 <input type="text" id="name" name="name" placeholder="Enter your name" required>
